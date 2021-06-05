@@ -1,5 +1,7 @@
 FROM python:3.9.1-slim
 
+EXPOSE 8000
+
 WORKDIR /opt/app
 
 COPY requirements.txt requirements.txt

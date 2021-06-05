@@ -1,38 +1,37 @@
 version: '3'
 services:
-  elasticsearch:
-    container_name: elasticsearch
-    image: elasticsearch:7.10.1
-    environment:
-      discovery.type: "single-node"
-    ports:
-      - 9200:9200
-    volumes:
-      - elasticdb:/opt/app/elasticsearch/data
-    restart:
-      on-failure
-
   redis:
     image: redis:6.0.9
     ports:
       - 6379:6379
     volumes:
-      - redisdata:/opt/app/redis/data
-    restart: on-failure
+      - redis-data:/opt/app/redis/data
+    networks:
+      - movies-api-network
+    restart: unless-stopped
 
   async_api:
     container_name: async_api
     build:
       context: .
-    expose:
-      - 8000
-    env_file:
-      - .env
+    ports:
+      - 8000:8000
+    environment:
+      PROJECT_NAME: "Movies API"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ELASTIC_HOST: 127.0.0.1
+      ELASTIC_PORT: 9200
+    networks:
+      - movies-api-network
     depends_on:
-      - elasticsearch
       - redis
-    restart: on-failure
+    restart: unless-stopped
 
 volumes:
-  elasticdb:
-  redisdata:
+  redis-data:
+
+networks:
+  movies-api-network:
+    name: movies-api-network
+    driver: bridge
