@@ -1,7 +1,7 @@
 from typing import List
 
-from src.models.basic import AbstractModel
-from src.models.person import BasePerson
+from models.basic import AbstractModel
+from models.person import BasePerson
 
 
 class Film(AbstractModel):

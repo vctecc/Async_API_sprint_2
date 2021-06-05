@@ -1,6 +1,6 @@
 from typing import List
 
-from src.models.basic import AbstractModel
+from models.basic import AbstractModel
 
 
 class BasePerson(AbstractModel):
