@@ -12,7 +12,7 @@ PERSONS_PAGE_SIZE = 5
 router = APIRouter()
 
 
-@router.get('/{person_id}', response_model=Person)
+@router.get("/{person_id}", response_model=Person)
 async def person_details(person_id: str, person_service: PersonService = Depends(get_person_service)) -> Person:
     person = await person_service.get_by_id(person_id)
     if not person:
@@ -20,17 +20,17 @@ async def person_details(person_id: str, person_service: PersonService = Depends
     return person
 
 
-@router.get('/search/', response_model=List[Person])
+@router.get("/search/", response_model=List[Person])
 async def person_search(query: str = "",
-                        page: Optional[int] = Query(1, alias='page[number]'),
-                        page_size: Optional[int] = Query(PERSONS_PAGE_SIZE, alias='page[size]'),
+                        page: Optional[int] = Query(1, alias="page[number]"),
+                        page_size: Optional[int] = Query(PERSONS_PAGE_SIZE, alias="page[size]"),
                         person_service: PersonService = Depends(get_person_service)
                         ) -> List[Person]:
     persons = await person_service.search(query, page, page_size)
     return persons
 
 
-@router.get('/{person_id}/film', response_model=List[FilmPreview])
+@router.get("/{person_id}/film", response_model=List[FilmPreview])
 async def person_films(person_id: str,
                        person_service: PersonService = Depends(get_person_service)
                        ) -> List[FilmPreview]:
