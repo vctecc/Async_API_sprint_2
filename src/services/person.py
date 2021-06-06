@@ -4,13 +4,14 @@ from typing import List, Optional
 
 import orjson
 from elasticsearch_dsl import Q, Search
+from elasticsearch_dsl.query import Match, MultiMatch
 from fastapi import Depends
 
 from db.cache import Cache
 from db.storage import Storage
 from db.storage_implementation import AsyncElasticsearchStorage
 from db.cache_implementation import RedisCache
-from models.film import Film
+from models.film import Film, FilmPreview
 from models.person import BasePerson, Person
 
 CACHE_EXPIRE = 1  # seconds
@@ -38,6 +39,20 @@ def create_person_search_query(query: str,
     q = s.query("match", full_name=query)[start:start + page_size]
     query = q.to_dict()
     return query
+
+
+def create_films_by_person_query(person_id):
+    """
+    Create query to get films of given person from ElasticSearch
+    :param person_id:
+    :return: dict
+    """
+    s = Search()
+    q = s.query(Q("nested", path="actors", query=Q("match", actors__id=person_id))
+                | Q("nested", path="writers", query=Q("match", writers__id=person_id))
+                | Q("nested", path="directors", query=Q("match", directors__id=person_id))
+                )
+    return q.to_dict()
 
 
 class PersonService:
@@ -103,6 +118,18 @@ class PersonService:
         if not persons:
             return None
         return persons
+
+    async def get_films_by_person(self, person_id: str) -> List[FilmPreview]:
+        """
+        Get preview for films of given person
+        :param person_id: uuid of the person
+        :return: List[FilmPreview] with films of person with given person_id
+        """
+        query = create_films_by_person_query(person_id)
+        films = await self.film_storage.search(query)
+        print(films)
+        films = [FilmPreview.parse_obj(film) for film in films]
+        return films
 
 
 @lru_cache()
