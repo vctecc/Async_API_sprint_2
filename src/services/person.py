@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import List, Optional
 
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch
+from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
 from db.storage_implementation import get_storage
@@ -46,8 +46,9 @@ class PersonService:
         return json.loads(ids)
 
     async def _person_from_storage(self, person_id: str) -> Optional[Person]:
-        data = await self.storage.get('persons', person_id)
-        if not data:
+        try:
+            data = await self.storage.get('persons', person_id)
+        except NotFoundError:
             return None
         data = data["_source"]
         data['actor_in'] = await self._get_actor_filmworks(person_id)
