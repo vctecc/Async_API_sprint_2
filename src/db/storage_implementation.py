@@ -43,10 +43,5 @@ class AsyncElasticsearchStorage(Storage):
         if not result['hits']['total']['value']:
             return []
 
-        # FIXME first item is setting, need drop it in another way
-        print(result['hits']['hits'])
-
-        for hint in result['hits']['hits']:
-            print(hint)
-        items = [self.model(**hit['_source']) for hit in result['hits']['hits'][1:]]
+        items = [self.model(**hit['_source']) for hit in result['hits']['hits']]
         return items

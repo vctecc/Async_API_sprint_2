@@ -15,24 +15,24 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
     return film
 
 
-@router.get('/', response_model=List[FilmPreview])
+@router.get("/", response_model=List[FilmPreview])
 async def films_index(
         sort: Optional[str] = None,
-        size: Optional[int] = Query(2, alias='page[size]'),
-        page: Optional[int] = Query(10, alias='page[number]'),
-        genre: Optional[str] = Query(None, alias='filter[genre]'),
+        size: Optional[int] = Query(2, alias="page[size]"),
+        page: Optional[int] = Query(10, alias="page[number]"),
+        genre: Optional[str] = Query(None, alias="filter[genre]"),
         film_service: FilmService = Depends(get_film_service)
 ) -> List[Film]:
     return await film_service.get_by_search(page=page, size=size, genre=genre, sort=sort)
 
 
-@router.get('/search/', response_model=List[FilmPreview])
+@router.get("/search/", response_model=List[FilmPreview])
 async def films_index(
         query: Optional[str] = None,
         sort: Optional[str] = None,
-        size: Optional[int] = Query(2, alias='page[size]'),
-        page: Optional[int] = Query(10, alias='page[number]'),
-        genre: Optional[str] = Query(None, alias='filter[genre]'),
+        size: Optional[int] = Query(2, alias="page[size]"),
+        page: Optional[int] = Query(10, alias="page[number]"),
+        genre: Optional[str] = Query(None, alias="filter[genre]"),
         film_service: FilmService = Depends(get_film_service)
 ) -> List[Film]:
     return await film_service.get_by_search(query=query, page=page, size=size, genre=genre, sort=sort)

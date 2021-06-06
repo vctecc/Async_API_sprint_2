@@ -24,13 +24,13 @@ def create_query_search(query: str = None,
     s = Search()
     if query:
         multi_match_fields = (
-            'title^4', 'actors_names^3',
-            'description^2', 'genres^2',
-            'writers_names', 'directors_names',
+            "title^4", "actors_names^3",
+            "description^2", "genres^2",
+            "writers_names", "directors_names",
         )
-        s = s.query('multi_match', query=query, fields=multi_match_fields)
+        s = s.query("multi_match", query=query, fields=multi_match_fields)
     if genre:
-        s = s.query('nested', path='genres', query=Q('bool', must=Q('term', genres__id=genre)))
+        s = s.query("nested", path="genres", query=Q("bool", must=Q("term", genres__id=genre)))
     if sort:
         s = s.sort(sort)
 
@@ -39,7 +39,7 @@ def create_query_search(query: str = None,
 
 
 class FilmService:
-    prefix = 'film_search'
+    prefix = "film_search"
 
     def __init__(self, cache: Cache, storage: Storage, cache_expire: int):
         self.cache = cache
@@ -47,7 +47,7 @@ class FilmService:
         self.cache_expire = cache_expire
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
-        key = f'{self.prefix}:{film_id}'
+        key = f"{self.prefix}:{film_id}"
         film = await self.cache.get(key)
         if not film:
             film = await self.storage.get(film_id)
@@ -65,7 +65,7 @@ class FilmService:
                             ) -> List[FilmPreview]:
 
         params = (query, page, size, sort, genre)
-        key = f'{self.prefix}:{str(params)}'
+        key = f"{self.prefix}:{str(params)}"
 
         films = await self.cache.get_query(key)
         if not films:
@@ -82,6 +82,6 @@ class FilmService:
 @lru_cache()
 def get_film_service(
         cache: Redis = Depends(RedisCache(Film)),
-        storage: AsyncElasticsearch = Depends(AsyncElasticsearchStorage(Film, 'movies')),
+        storage: AsyncElasticsearch = Depends(AsyncElasticsearchStorage(Film, "movies")),
 ) -> FilmService:
     return FilmService(cache, storage, FILM_CACHE_EXPIRE_IN_SECONDS)
