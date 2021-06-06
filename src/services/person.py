@@ -3,11 +3,11 @@ from functools import lru_cache
 from typing import List, Optional
 
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch
+from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
-from db.elastic import get_elastic
-from db.redis import get_redis
+from db.storage_implementation import get_storage
+from db.cache_implementation import get_cache
 from models.film import Film
 from models.person import Person
 
@@ -46,8 +46,9 @@ class PersonService:
         return json.loads(ids)
 
     async def _person_from_storage(self, person_id: str) -> Optional[Person]:
-        data = await self.storage.get('persons', person_id)
-        if not data:
+        try:
+            data = await self.storage.get('persons', person_id)
+        except NotFoundError:
             return None
         data = data["_source"]
         data['actor_in'] = await self._get_actor_filmworks(person_id)
@@ -138,7 +139,7 @@ class PersonService:
 
 @lru_cache()
 def get_person_service(
-        cache: Redis = Depends(get_redis),
-        storage: AsyncElasticsearch = Depends(get_elastic),
+        cache: Redis = Depends(get_cache),
+        storage: AsyncElasticsearch = Depends(get_storage),
 ) -> PersonService:
     return PersonService(cache, storage)
