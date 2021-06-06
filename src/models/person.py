@@ -8,6 +8,10 @@ class BasePerson(AbstractModel):
     full_name: str
 
 
+class FilmRole(AbstractModel):
+    id: str  # Film id
+    role: str  # Person role in Film
+
+
 class Person(BasePerson):
-    actor_in: List[dict]
-    creator_in: List[dict]
+    films: List[FilmRole]

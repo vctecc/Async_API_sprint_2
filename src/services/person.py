@@ -51,8 +51,7 @@ class PersonService:
         except NotFoundError:
             return None
         data = data["_source"]
-        data['actor_in'] = await self._get_actor_filmworks(person_id)
-        data['creator_in'] = await self._get_created_filmworks(person_id)
+        data['films'] = await self._get_created_filmworks(person_id)
         return Person.parse_obj(data)
 
     async def _put_person_to_cache(self, person: Person):
@@ -82,30 +81,29 @@ class PersonService:
         :param person_id:
         :return: List[dict]
         """
-        jobs = ['writer', 'director', 'actor']
+        roles = ['writer', 'director', 'actor']
         all_films = []
-        for job in jobs:
-            films = await self._get_filmworks_by_person_job(person_id, job)
-            films = [{"uuid": film.id, "job": job} for film in films]
+        for role in roles:
+            films = await self._get_filmworks_by_person_job(person_id, role)
+            films = [{"id": film.id, "role": role} for film in films]
             all_films.extend(films)
         return all_films
 
-    async def _get_filmworks_by_person_job(self, person_id: str, job: str) -> Optional[List[Film]]:
+    async def _get_filmworks_by_person_job(self, person_id: str, role: str) -> Optional[List[Film]]:
         query = {
             'query': {
                 'nested': {
-                    'path': f'{job}s',
+                    'path': f'{role}s',
                     'query': {
                         'match': {
-                            f'{job}s.id': person_id
+                            f'{role}s.id': person_id
                         }
                     }
                 }
             }
         }
         search_results = await self.storage.search(body=query, index='movies')
-        # TODO: remove mock when genres field in movies index will be fixed
-        films = [Film.parse_obj({**film["_source"], **{"genres": [], "genres_names": []}})
+        films = [Film.parse_obj(film["_source"])
                  for film in search_results["hits"]["hits"]]
         return films
 
