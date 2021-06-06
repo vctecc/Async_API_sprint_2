@@ -8,6 +8,8 @@ from elasticsearch_dsl import Search, Q
 
 from fastapi import Depends
 
+from db.storage import Storage
+from db.cache import Cache
 from db.elastic import AsyncElasticsearchStorage
 from db.redis import RedisCache
 from models.film import Film, FilmPreview
@@ -28,7 +30,7 @@ def create_query_search(query: str = None,
         )
         s = s.query('multi_match', query=query, fields=multi_match_fields)
     if genre:
-        s = s.query('nested', path='genres', query=Q('bool', filter=Q('term', genres__id=genre)))
+        s = s.query('nested', path='genres', query=Q('bool', must=Q('term', genres__id=genre)))
     if sort:
         s = s.sort(sort)
 
@@ -37,20 +39,21 @@ def create_query_search(query: str = None,
 
 
 class FilmService:
-    prefix = 'FilmService'
+    prefix = 'film_search'
 
-    def __init__(self, cache: Redis, storage: AsyncElasticsearch, cache_expire: int):
+    def __init__(self, cache: Cache, storage: Storage, cache_expire: int):
         self.cache = cache
         self.storage = storage
         self.cache_expire = cache_expire
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
-        film = await self.cache.get(film_id)
+        key = f'{self.prefix}:{film_id}'
+        film = await self.cache.get(key)
         if not film:
             film = await self.storage.get(film_id)
             if not film:
                 return None
-            await self.cache.set(film.id, film.json(), self.cache_expire)
+            await self.cache.set(key, film.json(), self.cache_expire)
         return film
 
     async def get_by_search(self,
@@ -62,19 +65,17 @@ class FilmService:
                             ) -> List[FilmPreview]:
 
         params = (query, page, size, sort, genre)
-        # films = await self.cache.get(self.prefix + str(params))
-        # # TODO do it simply
-        # if films:
-        #     films = [FilmPreview(**item) for item in orjson.loads(films)]
-        films = None
+        key = f'{self.prefix}:{str(params)}'
+
+        films = await self.cache.get_query(key)
         if not films:
             search = create_query_search(*params)
             films = await self.storage.search(search)
             if not films:
                 return []
 
-            # data = orjson.dumps([f.dict() for f in films], default=str)
-            # await self.cache.set(self.prefix + str(params), data, self.cache_expire)
+            data = orjson.dumps([f.dict() for f in films], default=str)
+            await self.cache.set(key, data, self.cache_expire)
         return films
 
 

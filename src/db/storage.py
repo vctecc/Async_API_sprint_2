@@ -11,7 +11,7 @@ class Storage(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get(self, **kwargs):
+    async def get(self, doc_id: str):
         pass
 
     @abc.abstractmethod
@@ -19,5 +19,5 @@ class Storage(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def search(self, **kwargs):
+    async def search(self,  query: dict):
         pass

@@ -40,8 +40,7 @@ class AsyncElasticsearchStorage(Storage):
         pass
 
     async def search(self, query: dict):
-        # search.using(self.client)
-        # search.index = self.index
+        print(query)
         result = await self.client.search(index=self.index, body=query)
         if not result['hits']['total']['value']:
             return []
