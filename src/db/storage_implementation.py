@@ -10,7 +10,7 @@ es: AsyncElasticsearch = None
 
 
 # Функция понадобится при внедрении зависимостей
-async def get_elastic() -> AsyncElasticsearch:
+async def get_storage() -> AsyncElasticsearch:
     return es
 
 
@@ -44,5 +44,9 @@ class AsyncElasticsearchStorage(Storage):
             return []
 
         # FIXME first item is setting, need drop it in another way
+        print(result['hits']['hits'])
+
+        for hint in result['hits']['hits']:
+            print(hint)
         items = [self.model(**hit['_source']) for hit in result['hits']['hits'][1:]]
         return items

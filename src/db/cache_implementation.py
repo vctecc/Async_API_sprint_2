@@ -10,8 +10,9 @@ redis: Redis = None
 
 
 # Функция понадобится при внедрении зависимостей
-async def get_redis() -> Redis:
+async def get_cache() -> Redis:
     return redis
+
 
 class RedisCache(Cache):
     def __init__(self, model: ClassVar, ):
