@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 from typing import List, Optional
 
@@ -24,7 +25,7 @@ class PersonService:
             person = await self._person_from_storage(person_id)
             if not person:
                 return None
-            await self._put_to_cache(person)
+            await self._put_person_to_cache(person)
         return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:
@@ -36,6 +37,14 @@ class PersonService:
         person = Person.parse_raw(data)
         return person
 
+    async def _person_search_from_cache(self, query: dict) -> List[str]:
+        prefix = 'person_search'
+        query_json = json.dumps(query)
+        ids = await self.cache.get(':'.join((prefix, query_json)))
+        if not ids:
+            return []
+        return json.loads(ids)
+
     async def _person_from_storage(self, person_id: str) -> Optional[Person]:
         data = await self.storage.get('persons', person_id)
         if not data:
@@ -45,9 +54,15 @@ class PersonService:
         data['creator_in'] = await self._get_created_filmworks(person_id)
         return Person.parse_obj(data)
 
-    async def _put_to_cache(self, person: Person):
+    async def _put_person_to_cache(self, person: Person):
         prefix = 'person:'
         await self.cache.set(prefix + person.id, person.json(), expire=CACHE_EXPIRE)
+
+    async def _put_search_to_cache(self, query, ids):
+        prefix = 'person_search'
+        query = json.dumps(query)
+        ids = json.dumps(ids)
+        await self.cache.set(':'.join((prefix, query)), ids, expire=CACHE_EXPIRE)
 
     async def _get_actor_filmworks(self, person_id: str) -> Optional[List[dict]]:
         """
@@ -95,7 +110,7 @@ class PersonService:
 
     async def search(self, query: str, page: int, page_size: int) -> Optional[List[Person]]:
         """
-
+        Search persons by name
         :param query: query string to search in full names
         :param page: page number
         :param page_size: page size
@@ -110,8 +125,11 @@ class PersonService:
                 }
             }
         }
-        search_results = await self.storage.search(body=query, index='persons')
-        ids = [result["_id"] for result in search_results["hits"]["hits"]]
+        ids = await self._person_search_from_cache(query)
+        if not ids:
+            search_results = await self.storage.search(body=query, index='persons')
+            ids = [result["_id"] for result in search_results["hits"]["hits"]]
+            await self._put_search_to_cache(query, ids)
         persons = [await self.get_by_id(person_id) for person_id in ids]
         if not persons:
             return None
