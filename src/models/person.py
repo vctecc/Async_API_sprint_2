@@ -4,8 +4,10 @@ from models.basic import AbstractModel
 
 
 class BasePerson(AbstractModel):
+    id: str
     full_name: str
 
 
 class Person(BasePerson):
-    films_ids: List[str]
+    actor_in: List[dict]
+    creator_in: List[dict]

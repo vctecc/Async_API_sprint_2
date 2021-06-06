@@ -2,7 +2,6 @@ from typing import ClassVar
 
 import elasticsearch
 from elasticsearch import AsyncElasticsearch
-from elasticsearch_dsl import Search
 
 from db.storage import Storage
 
@@ -40,7 +39,6 @@ class AsyncElasticsearchStorage(Storage):
         pass
 
     async def search(self, query: dict):
-        print(query)
         result = await self.client.search(index=self.index, body=query)
         if not result['hits']['total']['value']:
             return []
