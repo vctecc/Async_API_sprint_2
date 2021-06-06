@@ -4,7 +4,6 @@ from typing import List, Optional
 
 import orjson
 from elasticsearch_dsl import Q, Search
-from elasticsearch_dsl.query import Match, MultiMatch
 from fastapi import Depends
 
 from db.cache import Cache
@@ -58,10 +57,11 @@ def create_films_by_person_query(person_id):
 class PersonService:
     prefix = "person_search"
 
-    def __init__(self, cache: Cache, storage: Storage, film_storage: Storage):
+    def __init__(self, cache: Cache, storage: Storage, film_cache: Cache, film_storage: Storage):
         self.cache = cache
         self.storage = storage
         self.film_storage = film_storage
+        self.film_cache = film_cache
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:
         person = await self.cache.get(f"{self.prefix}:{person_id}")
@@ -114,7 +114,7 @@ class PersonService:
             persons = await self.storage.search(query)
             persons = [await self.get_by_id(p.id) for p in persons]  # get Person instances from BasePerson
             serialized_persons = orjson.dumps([p.dict() for p in persons], default=str)
-            await self.cache.set(f"{self.prefix}:{orjson.dumps(query)}", serialized_persons, CACHE_EXPIRE)
+            await self.cache.set(f"{self.prefix}:{query}", serialized_persons, CACHE_EXPIRE)
         if not persons:
             return None
         return persons
@@ -126,8 +126,11 @@ class PersonService:
         :return: List[FilmPreview] with films of person with given person_id
         """
         query = create_films_by_person_query(person_id)
-        films = await self.film_storage.search(query)
-        print(films)
+        films = await self.film_cache.get_query(f"{self.prefix}:{query}")
+        if not films:
+            films = await self.film_storage.search(query)
+            serialized_films = orjson.dumps([f.dict() for f in films], default=str)
+            await self.film_cache.set(f"{self.prefix}:{query}", serialized_films, expire=CACHE_EXPIRE)
         films = [FilmPreview.parse_obj(film) for film in films]
         return films
 
@@ -135,7 +138,8 @@ class PersonService:
 @lru_cache()
 def get_person_service(
         cache: RedisCache = Depends(RedisCache(Person)),
+        film_cache: RedisCache = Depends(RedisCache(Film)),
         storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(BasePerson, "persons")),
         film_storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(Film, "movies")),
 ) -> PersonService:
-    return PersonService(cache, storage, film_storage)
+    return PersonService(cache, storage, film_cache, film_storage)
