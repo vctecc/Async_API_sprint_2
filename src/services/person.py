@@ -95,11 +95,13 @@ class PersonService:
         """
 
         :param query: query string to search in full names
-        :param page: page number # TODO implement pagination
+        :param page: page number
         :param page_size: page size
         :return: paginated list of persons who match the query
         """
         query = {
+            'from': (page - 1) * page_size,
+            'size': page_size,
             'query': {
                 'match': {
                     'full_name': query
