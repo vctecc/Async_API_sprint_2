@@ -20,4 +20,8 @@ ELASTIC_PORT = int(os.getenv("ELASTIC_PORT", 9200))
 # Корень проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 minutes
+minute = 60
+DEFAULT_CACHE_EXPIRE = os.getenv("DEFAULT_CACHE_EXPIRE", 5 * minute)
+FILM_CACHE_EXPIRE = os.getenv("FILM_CACHE_EXPIRE", DEFAULT_CACHE_EXPIRE)
+PERSON_CACHE_EXPIRE = os.getenv("PERSON_CACHE_EXPIRE", DEFAULT_CACHE_EXPIRE)
+GENRE_CACHE_EXPIRE = os.getenv("GENRE_CACHE_EXPIRE", DEFAULT_CACHE_EXPIRE)

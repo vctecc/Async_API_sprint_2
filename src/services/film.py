@@ -5,15 +5,14 @@ import orjson
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Search, Q
-
 from fastapi import Depends
 
-from db.storage import Storage
+from core.config import FILM_CACHE_EXPIRE
 from db.cache import Cache
-from db.storage_implementation import AsyncElasticsearchStorage
 from db.cache_implementation import RedisCache
+from db.storage import Storage
+from db.storage_implementation import AsyncElasticsearchStorage
 from models.film import Film, FilmPreview
-from core.config import FILM_CACHE_EXPIRE_IN_SECONDS
 
 
 def create_query_search(query: str = None,
@@ -30,7 +29,7 @@ def create_query_search(query: str = None,
         )
         s = s.query("multi_match", query=query, fields=multi_match_fields)
     if genre:
-        s = s.query("nested", path="genres", query=Q("bool", must=Q("term", genres__id=genre)))
+        s = s.query(Q('match', path='genres', query=Q('bool', filter=Q('term', genres__id=genre))))
     if sort:
         s = s.sort(sort)
 
@@ -84,4 +83,4 @@ def get_film_service(
         cache: Redis = Depends(RedisCache(Film)),
         storage: AsyncElasticsearch = Depends(AsyncElasticsearchStorage(Film, "movies")),
 ) -> FilmService:
-    return FilmService(cache, storage, FILM_CACHE_EXPIRE_IN_SECONDS)
+    return FilmService(cache, storage, FILM_CACHE_EXPIRE)
