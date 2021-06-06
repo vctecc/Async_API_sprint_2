@@ -1,113 +1,104 @@
-import json
 from functools import lru_cache
+from pprint import pprint
 from typing import List, Optional
 
-from aioredis import Redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
+import orjson
+from elasticsearch_dsl import Q, Search
 from fastapi import Depends
 
-from db.storage_implementation import get_storage
-from db.cache_implementation import get_cache
-from models.film import Film
-from models.person import Person
+from db.cache import Cache
+from db.storage import Storage
+from db.storage_implementation import AsyncElasticsearchStorage
+from db.cache_implementation import RedisCache
+from models.film import Film, FilmPreview
+from models.person import BasePerson, Person
 
-CACHE_EXPIRE = 60  # seconds
+CACHE_EXPIRE = 1  # seconds
+
+
+def create_person_films_query(person_id: str, role: str) -> dict:
+    """Create query for ElasticSearch to get films where person occupied given role"""
+    s = Search()
+    q = s.query(Q("nested", path=f"{role}s", query=Q("match", **{f"{role}s.id": person_id})))
+    return q.to_dict()
+
+
+def create_person_search_query(query: str,
+                               page: int = 1,
+                               page_size: int = 5) -> dict:
+    """
+    Create query for ElasticSearch to get persons by search string
+    :param query: string to search in full names
+    :param page: page number
+    :param page_size: page size
+    :return: dict with ES query params
+    """
+    s = Search()
+    start = (page - 1) * page_size
+    q = s.query("match", full_name=query)[start:start + page_size]
+    query = q.to_dict()
+    return query
+
+
+def create_films_by_person_query(person_id):
+    """
+    Create query to get films of given person from ElasticSearch
+    :param person_id:
+    :return: dict
+    """
+    s = Search()
+    q = s.query(Q("nested", path="actors", query=Q("match", actors__id=person_id))
+                | Q("nested", path="writers", query=Q("match", writers__id=person_id))
+                | Q("nested", path="directors", query=Q("match", directors__id=person_id))
+                )
+    return q.to_dict()
 
 
 class PersonService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.cache = redis
-        self.storage = elastic
+    prefix = "person_search"
+
+    def __init__(self, cache: Cache, storage: Storage, film_cache: Cache, film_storage: Storage):
+        self.cache = cache
+        self.storage = storage
+        self.film_storage = film_storage
+        self.film_cache = film_cache
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:
-        person = await self._person_from_cache(person_id)
+        person = await self.cache.get(f"{self.prefix}:{person_id}")
         if not person:
             person = await self._person_from_storage(person_id)
             if not person:
                 return None
-            await self._put_person_to_cache(person)
+            await self.cache.set(f"{self.prefix}:{person.id}", person.json(), expire=CACHE_EXPIRE)
         return person
-
-    async def _person_from_cache(self, person_id: str) -> Optional[Person]:
-        prefix = 'person:'
-        data = await self.cache.get(prefix + person_id)
-        if not data:
-            return None
-
-        person = Person.parse_raw(data)
-        return person
-
-    async def _person_search_from_cache(self, query: dict) -> List[str]:
-        prefix = 'person_search'
-        query_json = json.dumps(query)
-        ids = await self.cache.get(':'.join((prefix, query_json)))
-        if not ids:
-            return []
-        return json.loads(ids)
 
     async def _person_from_storage(self, person_id: str) -> Optional[Person]:
-        try:
-            data = await self.storage.get('persons', person_id)
-        except NotFoundError:
+        person = await self.storage.get(person_id)
+        if not person:
             return None
-        data = data["_source"]
-        data['actor_in'] = await self._get_actor_filmworks(person_id)
-        data['creator_in'] = await self._get_created_filmworks(person_id)
-        return Person.parse_obj(data)
+        person = person.dict()
+        person["films"] = await self._get_filmworks(person_id)
+        return Person.parse_obj(person)
 
-    async def _put_person_to_cache(self, person: Person):
-        prefix = 'person:'
-        await self.cache.set(prefix + person.id, person.json(), expire=CACHE_EXPIRE)
-
-    async def _put_search_to_cache(self, query, ids):
-        prefix = 'person_search'
-        query = json.dumps(query)
-        ids = json.dumps(ids)
-        await self.cache.set(':'.join((prefix, query)), ids, expire=CACHE_EXPIRE)
-
-    async def _get_actor_filmworks(self, person_id: str) -> Optional[List[dict]]:
-        """
-        Find films where given person played some role
-        :param person_id:
-        :return: List[dict]: [{"uuid": filmwork_uuid, "role": actor_role}, ...]
-        """
-        films = await self._get_filmworks_by_person_job(person_id, 'actor')
-        # TODO: add role when it will exist in index schema
-        films = [{"uuid": film.id, "role": None} for film in films]
-        return films
-
-    async def _get_created_filmworks(self, person_id: str) -> Optional[List[dict]]:
+    async def _get_filmworks(self, person_id: str) -> Optional[List[dict]]:
         """
         Find films which given person did create
         :param person_id:
         :return: List[dict]
         """
-        jobs = ['writer', 'director', 'actor']
+        roles = ("writer", "director", "actor")
         all_films = []
-        for job in jobs:
-            films = await self._get_filmworks_by_person_job(person_id, job)
-            films = [{"uuid": film.id, "job": job} for film in films]
+        for role in roles:
+            films = await self._get_filmworks_by_person_job(person_id, role)
+            films = [{"id": film.id, "role": role} for film in films]
             all_films.extend(films)
+        pprint(all_films)
         return all_films
 
-    async def _get_filmworks_by_person_job(self, person_id: str, job: str) -> Optional[List[Film]]:
-        query = {
-            'query': {
-                'nested': {
-                    'path': f'{job}s',
-                    'query': {
-                        'match': {
-                            f'{job}s.id': person_id
-                        }
-                    }
-                }
-            }
-        }
-        search_results = await self.storage.search(body=query, index='movies')
-        # TODO: remove mock when genres field in movies index will be fixed
-        films = [Film.parse_obj({**film["_source"], **{"genres": [], "genres_names": []}})
-                 for film in search_results["hits"]["hits"]]
-        return films
+    async def _get_filmworks_by_person_job(self, person_id: str, role: str) -> Optional[List[Film]]:
+        query = create_person_films_query(person_id, role)
+        films = await self.film_storage.search(query)
+        return films or []
 
     async def search(self, query: str, page: int, page_size: int) -> Optional[List[Person]]:
         """
@@ -117,29 +108,38 @@ class PersonService:
         :param page_size: page size
         :return: paginated list of persons who match the query
         """
-        query = {
-            'from': (page - 1) * page_size,
-            'size': page_size,
-            'query': {
-                'match': {
-                    'full_name': query
-                }
-            }
-        }
-        ids = await self._person_search_from_cache(query)
-        if not ids:
-            search_results = await self.storage.search(body=query, index='persons')
-            ids = [result["_id"] for result in search_results["hits"]["hits"]]
-            await self._put_search_to_cache(query, ids)
-        persons = [await self.get_by_id(person_id) for person_id in ids]
+        query = create_person_search_query(query, page, page_size)
+        persons = await self.cache.get_query(f"{self.prefix}:{query}")
+        if not persons:
+            persons = await self.storage.search(query)
+            persons = [await self.get_by_id(p.id) for p in persons]  # get Person instances from BasePerson
+            serialized_persons = orjson.dumps([p.dict() for p in persons], default=str)
+            await self.cache.set(f"{self.prefix}:{query}", serialized_persons, CACHE_EXPIRE)
         if not persons:
             return None
         return persons
 
+    async def get_films_by_person(self, person_id: str) -> List[FilmPreview]:
+        """
+        Get preview for films of given person
+        :param person_id: uuid of the person
+        :return: List[FilmPreview] with films of person with given person_id
+        """
+        query = create_films_by_person_query(person_id)
+        films = await self.film_cache.get_query(f"{self.prefix}:{query}")
+        if not films:
+            films = await self.film_storage.search(query)
+            serialized_films = orjson.dumps([f.dict() for f in films], default=str)
+            await self.film_cache.set(f"{self.prefix}:{query}", serialized_films, expire=CACHE_EXPIRE)
+        films = [FilmPreview.parse_obj(film) for film in films]
+        return films
+
 
 @lru_cache()
 def get_person_service(
-        cache: Redis = Depends(get_cache),
-        storage: AsyncElasticsearch = Depends(get_storage),
+        cache: RedisCache = Depends(RedisCache(Person)),
+        film_cache: RedisCache = Depends(RedisCache(Film)),
+        storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(BasePerson, "persons")),
+        film_storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(Film, "movies")),
 ) -> PersonService:
-    return PersonService(cache, storage)
+    return PersonService(cache, storage, film_cache, film_storage)
