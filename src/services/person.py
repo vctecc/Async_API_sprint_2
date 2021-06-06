@@ -3,6 +3,7 @@ from pprint import pprint
 from typing import List, Optional
 
 import orjson
+from elasticsearch_dsl import Q, Search
 from fastapi import Depends
 
 from db.cache import Cache
@@ -13,6 +14,30 @@ from models.film import Film
 from models.person import BasePerson, Person
 
 CACHE_EXPIRE = 1  # seconds
+
+
+def create_person_films_query(person_id: str, role: str) -> dict:
+    """Create query for ElasticSearch to get films where person occupied given role"""
+    s = Search()
+    q = s.query(Q("nested", path=f"{role}s", query=Q("match", **{f"{role}s.id": person_id})))
+    return q.to_dict()
+
+
+def create_person_search_query(query: str,
+                               page: int = 1,
+                               page_size: int = 5) -> dict:
+    """
+    Create query for ElasticSearch to get persons by search string
+    :param query: string to search in full names
+    :param page: page number
+    :param page_size: page size
+    :return: dict with ES query params
+    """
+    s = Search()
+    start = (page - 1) * page_size
+    q = s.query("match", full_name=query)[start:start + page_size]
+    query = q.to_dict()
+    return query
 
 
 class PersonService:
@@ -56,18 +81,7 @@ class PersonService:
         return all_films
 
     async def _get_filmworks_by_person_job(self, person_id: str, role: str) -> Optional[List[Film]]:
-        query = {
-            'query': {
-                'nested': {
-                    'path': f'{role}s',
-                    'query': {
-                        'match': {
-                            f'{role}s.id': person_id
-                        }
-                    }
-                }
-            }
-        }
+        query = create_person_films_query(person_id, role)
         films = await self.film_storage.search(query)
         return films or []
 
@@ -79,15 +93,7 @@ class PersonService:
         :param page_size: page size
         :return: paginated list of persons who match the query
         """
-        query = {
-            'from': (page - 1) * page_size,
-            'size': page_size,
-            'query': {
-                'match': {
-                    'full_name': query
-                }
-            }
-        }
+        query = create_person_search_query(query, page, page_size)
         persons = await self.cache.get_query(f"{self.prefix}:{query}")
         if not persons:
             persons = await self.storage.search(query)
