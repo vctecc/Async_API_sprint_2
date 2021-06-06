@@ -1,11 +1,13 @@
-from typing import List
+from typing import List, Optional
 
 from models.basic import AbstractModel
 from models.person import BasePerson
+from models.genre import Genre
 
 
 class Film(AbstractModel):
     title: str
+    imdb_rating: Optional[float]
     description: str
     actors_names: List[str]
     writers_names: List[str]
@@ -14,5 +16,10 @@ class Film(AbstractModel):
     actors: List[BasePerson]
     writers: List[BasePerson]
     directors: List[BasePerson]
-    genres: List[BasePerson]
+    genres: List[Genre]
 
+
+class FilmPreview(AbstractModel):
+    title: str
+    imdb_rating: Optional[float]
+    description: str
