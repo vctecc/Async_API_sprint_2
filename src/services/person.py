@@ -28,7 +28,8 @@ class PersonService:
         return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:
-        data = await self.cache.get(person_id)
+        prefix = 'person:'
+        data = await self.cache.get(prefix + person_id)
         if not data:
             return None
 
@@ -45,7 +46,8 @@ class PersonService:
         return Person.parse_obj(data)
 
     async def _put_to_cache(self, person: Person):
-        await self.cache.set(person.id, person.json(), expire=CACHE_EXPIRE)
+        prefix = 'person:'
+        await self.cache.set(prefix + person.id, person.json(), expire=CACHE_EXPIRE)
 
     async def _get_actor_filmworks(self, person_id: str) -> Optional[List[dict]]:
         """
@@ -110,7 +112,7 @@ class PersonService:
         }
         search_results = await self.storage.search(body=query, index='persons')
         ids = [result["_id"] for result in search_results["hits"]["hits"]]
-        persons = [await self.get_by_id(person_id) for person_id in ids]  # TODO: use `async for`
+        persons = [await self.get_by_id(person_id) for person_id in ids]
         if not persons:
             return None
         return persons
