@@ -41,7 +41,7 @@ def create_person_search_query(query: str,
 
 
 class PersonService:
-    prefix = 'person_search'
+    prefix = "person_search"
 
     def __init__(self, cache: Cache, storage: Storage, film_storage: Storage):
         self.cache = cache
@@ -62,7 +62,7 @@ class PersonService:
         if not person:
             return None
         person = person.dict()
-        person['films'] = await self._get_filmworks(person_id)
+        person["films"] = await self._get_filmworks(person_id)
         return Person.parse_obj(person)
 
     async def _get_filmworks(self, person_id: str) -> Optional[List[dict]]:
@@ -71,7 +71,7 @@ class PersonService:
         :param person_id:
         :return: List[dict]
         """
-        roles = ('writer', 'director', 'actor')
+        roles = ("writer", "director", "actor")
         all_films = []
         for role in roles:
             films = await self._get_filmworks_by_person_job(person_id, role)
@@ -108,7 +108,7 @@ class PersonService:
 @lru_cache()
 def get_person_service(
         cache: RedisCache = Depends(RedisCache(Person)),
-        storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(BasePerson, 'persons')),
-        film_storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(Film, 'movies')),
+        storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(BasePerson, "persons")),
+        film_storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(Film, "movies")),
 ) -> PersonService:
     return PersonService(cache, storage, film_storage)
