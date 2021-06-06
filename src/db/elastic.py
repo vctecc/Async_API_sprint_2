@@ -1,6 +1,9 @@
 from typing import ClassVar
 
+import elasticsearch
 from elasticsearch import AsyncElasticsearch
+from elasticsearch_dsl import Search
+
 from db.storage import Storage
 
 
@@ -27,11 +30,22 @@ class AsyncElasticsearchStorage(Storage):
         return es
 
     async def get(self, doc_id: str):
-        document = await self.client.get(self.index, doc_id)
+        try:
+            document = await self.client.get(self.index, doc_id)
+        except elasticsearch.exceptions.NotFoundError:
+            return None
         return self.model(**document['_source'])
 
     async def get_many(self, **kwargs):
         pass
 
-    async def search(self, **kwargs):
-        pass
+    async def search(self, query: dict):
+        # search.using(self.client)
+        # search.index = self.index
+        result = await self.client.search(index=self.index, body=query)
+        if not result['hits']['total']['value']:
+            return []
+
+        # FIXME first item is setting, need drop it in another way
+        items = [self.model(**hit['_source']) for hit in result['hits']['hits'][1:]]
+        return items

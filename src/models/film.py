@@ -17,3 +17,9 @@ class Film(AbstractModel):
     directors: List[BasePerson]
     # genres: List[Genre] # FIXME need update in ES schema
     genres: List[str]
+
+
+class FilmPreview(AbstractModel):
+    title: str
+    imdb_rating: Optional[float]
+    description: str
