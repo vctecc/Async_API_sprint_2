@@ -72,7 +72,7 @@ class PersonService:
             all_films.extend(films)
         return all_films
 
-    async def _get_filmworks_by_person_job(self, person_id: str, job: str) -> List[Film]:
+    async def _get_filmworks_by_person_job(self, person_id: str, job: str) -> Optional[List[Film]]:
         query = {
             'query': {
                 'nested': {
@@ -90,6 +90,28 @@ class PersonService:
         films = [Film.parse_obj({**film["_source"], **{"genres": [], "genres_names": []}})
                  for film in search_results["hits"]["hits"]]
         return films
+
+    async def search(self, query: str, page: int, page_size: int) -> Optional[List[Person]]:
+        """
+
+        :param query: query string to search in full names
+        :param page: page number # TODO implement pagination
+        :param page_size: page size
+        :return: paginated list of persons who match the query
+        """
+        query = {
+            'query': {
+                'match': {
+                    'full_name': query
+                }
+            }
+        }
+        search_results = await self.storage.search(body=query, index='persons')
+        ids = [result["_id"] for result in search_results["hits"]["hits"]]
+        persons = [await self.get_by_id(person_id) for person_id in ids]  # TODO: use `async for`
+        if not persons:
+            return None
+        return persons
 
 
 @lru_cache()
