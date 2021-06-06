@@ -16,12 +16,9 @@ class Cache(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_many(self, key):
-        pass
-
     def get_query(self, query: str):
         pass
 
     @abc.abstractmethod
-    def set(self, key: str, value, expire):
+    def set(self, key: str, value: str, expire: int):
         pass
