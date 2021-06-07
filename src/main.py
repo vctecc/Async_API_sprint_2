@@ -8,6 +8,7 @@ from fastapi.responses import ORJSONResponse
 
 from api.v1 import film, person
 from core import config
+from core.config import DEV
 from core.logger import LOGGING
 from db import storage_implementation, cache_implementation
 
@@ -38,10 +39,12 @@ app.include_router(person.router, prefix="/api/v1/person", tags=["person"])
 
 
 if __name__ == "__main__":
+    reload = DEV
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
         log_config=LOGGING,
         log_level=logging.DEBUG,
+        reload=reload,
     )
