@@ -1,10 +1,11 @@
+from http import HTTPStatus
 from typing import ClassVar
 
 import elasticsearch
 from elasticsearch import AsyncElasticsearch
+from fastapi import HTTPException
 
 from db.storage import Storage
-
 
 es: AsyncElasticsearch = None
 
@@ -33,20 +34,21 @@ class AsyncElasticsearchStorage(Storage):
             document = await self.client.get(self.index, doc_id)
         except elasticsearch.exceptions.NotFoundError:
             return None
-        return self.model(**document['_source'])
+        return self.model(**document["_source"])
 
     async def get_many(self, **kwargs):
         pass
 
     async def search(self, query: dict):
-        result = await self.client.search(index=self.index, body=query)
-        if not result['hits']['total']['value']:
+        try:
+            result = await self.client.search(index=self.index, body=query)
+        except elasticsearch.exceptions.RequestError as re:
+            if re.error == "search_phase_execution_exception":
+                raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Malformed request")
+            raise re
+
+        if not result["hits"]["total"]["value"]:
             return []
 
-        # FIXME first item is setting, need drop it in another way
-        print(result['hits']['hits'])
-
-        for hint in result['hits']['hits']:
-            print(hint)
-        items = [self.model(**hit['_source']) for hit in result['hits']['hits'][1:]]
+        items = [self.model(**hit["_source"]) for hit in result["hits"]["hits"]]
         return items

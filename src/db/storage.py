@@ -15,9 +15,5 @@ class Storage(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_many(self, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    async def search(self,  query: dict):
+    async def search(self, query: dict):
         pass
