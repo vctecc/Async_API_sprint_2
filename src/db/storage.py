@@ -5,6 +5,8 @@ logger = logging.getLogger(__name__)
 
 
 class Storage(abc.ABC):
+    def __call__(self):
+        return self
 
     @abc.abstractmethod
     def client(self):

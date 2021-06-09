@@ -9,18 +9,10 @@ from db.cache import Cache
 redis: Redis = None
 
 
-# Функция понадобится при внедрении зависимостей
-async def get_cache() -> Redis:
-    return redis
-
-
 class RedisCache(Cache):
     def __init__(self, model: ClassVar, ):
         super().__init__()
         self.model = model
-
-    def __call__(self):
-        return self
 
     @property
     def client(self) -> Redis:
