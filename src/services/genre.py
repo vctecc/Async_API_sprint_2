@@ -6,23 +6,25 @@ from db.storage import Storage
 
 from fastapi import Depends
 
-from db.storage_implementation import get_storage
-from db.cache_implementation import get_cache
+from core.config import GENRE_CACHE_EXPIRE
+from db.current_cache import get_current_cache
+from db.current_storage import get_current_storage
 from models.genre import Genre
-
-GENRE_CACHE_EXPIRE_IN_SECONDS = 60 * 60  # 60 минут
 
 
 class GenreService:
-    def __init__(self, cache: Cache, storage: Storage):
+    prefix = "genres"
+
+    def __init__(self, cache: Cache, storage: Storage, cache_expire: int):
         self.cache = cache
         self.storage = storage
+        self.cache_expire = cache_expire
 
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:
         # Пытаемся получить данные из кеша.
         genre = await self._get_genre_from_cache(genre_id)
         if not genre:
-            # Если жанра нет в кеше, то ищем его в хранилище.
+            # Если жанра нет в кэше, то ищем его в хранилище.
             genre = await self._get_genre_from_storage(genre_id)
             if not genre:
                 # Если он отсутствует в хранилище, значит, жанра вообще нет в базе.
@@ -38,32 +40,27 @@ class GenreService:
         pass
 
     async def _get_genre_from_storage(self, genre_id: str) -> Optional[Genre]:
-        doc = await self.storage.get(model="genre", id=genre_id)
-        return Genre(**doc["_source"])
+        return await self.storage.get(genre_id)
 
     async def _get_genres_from_storage(self) -> List[Genre]:
         pass
 
     async def _get_genre_from_cache(self, genre_id: str) -> Optional[Genre]:
         # Пытаемся получить данные из кеша.
-        data = await self.cache.get("genre: {genre.id}")
-        if not data:
-            return None
-
-        # pydantic предоставляет удобное API для создания объекта моделей из json.
-        genre = Genre.parse_raw(data)
-        return genre
+        key = f"{self.prefix}:{genre_id}"
+        return await self.cache.get(key)
 
     async def _put_genre_to_cache(self, genre: Genre):
         # Сохраняем данные в кэш.
         # Выставляем время жизни кеша.
         # pydantic позволяет сериализовать модель в json.
-        await self.cache.set(f"genre: {genre.id}", genre.json(), expire=GENRE_CACHE_EXPIRE_IN_SECONDS)
+        key = f"{self.prefix}:{genre.id}"
+        await self.cache.set(key, genre.json(), self.cache_expire)
 
 
 @lru_cache()
 def get_genre_service(
-        cache: Cache = Depends(get_cache),
-        storage: Storage = Depends(get_storage),
+        cache: Cache = Depends(get_current_cache(model=Genre)),
+        storage: Storage = Depends(get_current_storage(model=Genre, index="genres")),
 ) -> GenreService:
-    return GenreService(cache, storage)
+    return GenreService(cache, storage, GENRE_CACHE_EXPIRE)
