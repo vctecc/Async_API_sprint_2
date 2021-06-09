@@ -1,14 +1,15 @@
 from functools import lru_cache
 from typing import Optional, List
 
-from db.cache import Cache
-from db.storage import Storage
-
 from fastapi import Depends
+import orjson
+from elasticsearch_dsl import Search, Q
 
 from core.config import GENRE_CACHE_EXPIRE
 from db.current_cache import get_current_cache
 from db.current_storage import get_current_storage
+from db.cache import Cache
+from db.storage import Storage
 from models.genre import Genre
 
 
@@ -33,8 +34,40 @@ class GenreService:
             await self._put_genre_to_cache(genre)
         return genre
 
-    async def get_all(self) -> List[Genre]:
-        pass
+    async def get_by_search(self,
+                            query: str = None,
+                            page: int = 1,
+                            size: int = 10,
+                            sort: str = None,
+                            ) -> List[Genre]:
+
+        params = (query, page, size, sort)
+        genres = await self._get_genres_from_cache(str(params))
+
+        if not genres:
+            genres = await self._get_genres_from_storage(params)
+            if not genres:
+                return []
+
+            data = orjson.dumps([f.dict() for f in genres], default=str)
+            await self._put_genres_to_cache(str(params), data)
+        return genres
+
+    @staticmethod
+    def _create_query_search(query: str = None,
+                            page: int = 1,
+                            size: int = 10,
+                            sort: str = None) -> dict:
+        s = Search()
+        if query:
+            multi_match_fields = (
+                "name^2", "description^1",
+            )
+            s = s.query("multi_match", query=query, fields=multi_match_fields)
+        if sort:
+            s = s.sort(sort)
+        start = (page - 1) * size
+        return s[start: start + size].to_dict()
 
     async def get_genre_popularity(self, genre_id) -> int:
         pass
@@ -42,8 +75,13 @@ class GenreService:
     async def _get_genre_from_storage(self, genre_id: str) -> Optional[Genre]:
         return await self.storage.get(genre_id)
 
-    async def _get_genres_from_storage(self) -> List[Genre]:
-        pass
+    async def _get_genres_from_cache(self, params: str) -> Optional[Genre]:
+        key = f"{self.prefix}:{params}"
+        return await self.cache.get_query(key)
+
+    async def _get_genres_from_storage(self, params) -> List[Genre]:
+        search = GenreService._create_query_search(*params)
+        return await self.storage.search(search)
 
     async def _get_genre_from_cache(self, genre_id: str) -> Optional[Genre]:
         # Пытаемся получить данные из кеша.
@@ -57,6 +95,9 @@ class GenreService:
         key = f"{self.prefix}:{genre.id}"
         await self.cache.set(key, genre.json(), self.cache_expire)
 
+    async def _put_genres_to_cache(self, params: str, genres):
+        key = f"{self.prefix}:{params}"
+        self.cache.set(key, genres, self.cache_expire)
 
 @lru_cache()
 def get_genre_service(
