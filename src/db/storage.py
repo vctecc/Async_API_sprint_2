@@ -19,3 +19,7 @@ class Storage(abc.ABC):
     @abc.abstractmethod
     async def search(self, query: dict):
         pass
+
+    @abc.abstractmethod
+    async def count(self, query: dict):
+        pass

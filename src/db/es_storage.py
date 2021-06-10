@@ -46,3 +46,12 @@ class AsyncElasticsearchStorage(Storage):
 
         items = [self.model(**hit["_source"]) for hit in result["hits"]["hits"]]
         return items
+
+    async def count(self, query: dict):
+        try:
+            result = await self.client.count(index=self.index, body=query)
+        except elasticsearch.exceptions.RequestError as re:
+            if re.error == "count_phase_execution_exception":
+                raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Malformed request")
+            raise re
+        return result["count"]

@@ -11,14 +11,17 @@ from db.current_storage import get_current_storage
 from db.cache import Cache
 from db.storage import Storage
 from models.genre import Genre
+from models.film import Film
 
 
 class GenreService:
     prefix = "genres"
 
-    def __init__(self, cache: Cache, storage: Storage, cache_expire: int):
+    def __init__(self, cache: Cache, storage: Storage, film_storage: Storage,
+                 cache_expire: int):
         self.cache = cache
         self.storage = storage
+        self.film_storage = film_storage
         self.cache_expire = cache_expire
 
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:
@@ -55,9 +58,9 @@ class GenreService:
 
     @staticmethod
     def _create_query_search(query: str = None,
-                            page: int = 1,
-                            size: int = 10,
-                            sort: str = None) -> dict:
+                             page: int = 1,
+                             size: int = 10,
+                             sort: str = None) -> dict:
         s = Search()
         if query:
             multi_match_fields = (
@@ -70,7 +73,24 @@ class GenreService:
         return s[start: start + size].to_dict()
 
     async def get_genre_popularity(self, genre_id) -> int:
-        pass
+        popularity = await self._get_genre_popularity_from_cache(genre_id)
+        if not popularity:
+            popularity = await self._get_genre_popularity_from_storage(genre_id)
+            await self._put_genre_popularity_to_cache(str(genre_id), popularity)
+        return popularity
+
+    async def _get_genre_popularity_from_cache(self, genre_id):
+        key = f"{self.prefix}:popularity:{genre_id}"
+        return await self.cache.get_custom_data(key)
+
+    async def _get_genre_popularity_from_storage(self, genre_id):
+        s = Search()
+        s = s.query(Q("match", genres__id=genre_id))
+        return await self.film_storage.count(s.to_dict())
+
+    async def _put_genre_popularity_to_cache(self, genre_id: str, popularity):
+        key = f"{self.prefix}:popularity:{genre_id}"
+        await self.cache.set(key, popularity, self.cache_expire)
 
     async def _get_genre_from_storage(self, genre_id: str) -> Optional[Genre]:
         return await self.storage.get(genre_id)
@@ -97,11 +117,13 @@ class GenreService:
 
     async def _put_genres_to_cache(self, params: str, genres):
         key = f"{self.prefix}:{params}"
-        self.cache.set(key, genres, self.cache_expire)
+        await self.cache.set(key, genres, self.cache_expire)
+
 
 @lru_cache()
 def get_genre_service(
         cache: Cache = Depends(get_current_cache(model=Genre)),
         storage: Storage = Depends(get_current_storage(model=Genre, index="genres")),
+        films_storage: Storage = Depends(get_current_storage(model=Film, index="movies_db"))
 ) -> GenreService:
-    return GenreService(cache, storage, GENRE_CACHE_EXPIRE)
+    return GenreService(cache, storage, films_storage, GENRE_CACHE_EXPIRE)

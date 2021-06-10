@@ -21,7 +21,7 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Genre not found")
 
-    return Genre(id=genre.id, name=genre.name, popularity=10)
+    return Genre(id=genre.id, name=genre.name, popularity=await genre_service.get_genre_popularity(genre.id))
 
 
 @router.get("/", response_model=List[Genre])
@@ -32,5 +32,6 @@ async def genre_index(
         page: Optional[int] = Query(1),
         genre_service: GenreService = Depends(get_genre_service)
 ) -> List[Genre]:
-    return [Genre(id=genre.id, name=genre.name, popularity=15) for genre in await genre_service.get_by_search(
+    return [Genre(id=genre.id, name=genre.name, popularity=await genre_service.get_genre_popularity(str(genre.id)))
+            for genre in await genre_service.get_by_search(
         query=query, page=page, size=size, sort=sort)]

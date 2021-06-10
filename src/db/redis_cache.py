@@ -25,6 +25,9 @@ class RedisCache(Cache):
 
         return self.model.parse_raw(data)
 
+    async def get_custom_data(self, key: str):
+        return await self.client.get(key)
+
     async def get_query(self, query: str) -> Optional[List[BaseModel]]:
         data = await self.client.get(query)
         if not data:
