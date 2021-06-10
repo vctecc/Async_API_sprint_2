@@ -7,9 +7,9 @@ from fastapi import Depends
 
 from core.config import FILM_CACHE_EXPIRE
 from db.cache import Cache
-from db.cache_implementation import RedisCache
+from db.redis_cache import RedisCache
 from db.storage import Storage
-from db.storage_implementation import AsyncElasticsearchStorage
+from db.es_storage import AsyncElasticsearchStorage
 from models.film import Film, FilmPreview
 
 
