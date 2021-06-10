@@ -9,6 +9,9 @@ logging_config.dictConfig(LOGGING)
 # Название проекта. Используется в Swagger-документации
 PROJECT_NAME = os.getenv("PROJECT_NAME", "Movies API")
 
+# Тип окружения (development при True, production при False)
+DEV = os.getenv("DEV", False)
+
 # Настройки Redis
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
@@ -31,3 +34,6 @@ GENRE_POPULARITY_CACHE_EXPIRE = os.getenv("GENRE_POPULARITY_CACHE_EXPIRE", DEFAU
 FILM_WORKS_INDEX = os.getenv("FILM_WORKS_INDEX", "films")
 PERSONS_INDEX = os.getenv("PERSONS_INDEX", "persons")
 GENRES_INDEX = os.getenv("GENRES_INDEX", "genres")
+
+FILM_PAGE_SIZE = 10
+FILM_PAGE_NUMBER = 10
