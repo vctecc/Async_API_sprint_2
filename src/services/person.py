@@ -1,5 +1,4 @@
 from functools import lru_cache
-from pprint import pprint
 from typing import List, Optional
 
 import orjson
@@ -91,7 +90,6 @@ class PersonService:
             films = await self._get_filmworks_by_person_job(person_id, role)
             films = [{"id": film.id, "role": role} for film in films]
             all_films.extend(films)
-        pprint(all_films)
         return all_films
 
     async def _get_filmworks_by_person_job(self, person_id: str, role: str) -> Optional[List[Film]]:

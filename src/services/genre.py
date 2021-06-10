@@ -73,7 +73,7 @@ class GenreService:
 
     async def _get_genre_popularity_from_storage(self, genre_id: str) -> int:
         s = Search()
-        s = s.query(Q("match", genres__id=genre_id))
+        s = s.query(Q("nested", path="genres", query=Q("match", genres__id=genre_id)))
         return await self.film_storage.count(s.to_dict())
 
     async def _get_genre_from_cache(self, genre_id: str) -> Optional[Genre]:
