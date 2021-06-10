@@ -24,7 +24,6 @@ class AsyncElasticsearchStorage(Storage):
     async def get(self, doc_id: str):
         try:
             document = await self.client.get(self.index, doc_id)
-            print(document)
 
         except elasticsearch.exceptions.NotFoundError:
             return None
