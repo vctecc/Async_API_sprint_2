@@ -6,13 +6,14 @@ import orjson
 from elasticsearch_dsl import Q, Search
 from fastapi import Depends
 
-from core.config import FILM_CACHE_EXPIRE, PERSON_CACHE_EXPIRE
 from db.cache import Cache
 from db.storage import Storage
 from db.storage_implementation import AsyncElasticsearchStorage
 from db.cache_implementation import RedisCache
 from models.film import Film, FilmPreview
 from models.person import BasePerson, Person
+
+CACHE_EXPIRE = 1  # seconds
 
 
 def create_person_films_query(person_id: str, role: str) -> dict:
@@ -68,7 +69,7 @@ class PersonService:
             person = await self._person_from_storage(person_id)
             if not person:
                 return None
-            await self.cache.set(f"{self.prefix}:{person.id}", person.json(), expire=PERSON_CACHE_EXPIRE)
+            await self.cache.set(f"{self.prefix}:{person.id}", person.json(), expire=CACHE_EXPIRE)
         return person
 
     async def _person_from_storage(self, person_id: str) -> Optional[Person]:
@@ -113,7 +114,7 @@ class PersonService:
             persons = await self.storage.search(query)
             persons = [await self.get_by_id(p.id) for p in persons]  # get Person instances from BasePerson
             serialized_persons = orjson.dumps([p.dict() for p in persons], default=str)
-            await self.cache.set(f"{self.prefix}:{query}", serialized_persons, PERSON_CACHE_EXPIRE)
+            await self.cache.set(f"{self.prefix}:{query}", serialized_persons, CACHE_EXPIRE)
         if not persons:
             return None
         return persons
@@ -129,7 +130,7 @@ class PersonService:
         if not films:
             films = await self.film_storage.search(query)
             serialized_films = orjson.dumps([f.dict() for f in films], default=str)
-            await self.film_cache.set(f"{self.prefix}:{query}", serialized_films, expire=FILM_CACHE_EXPIRE)
+            await self.film_cache.set(f"{self.prefix}:{query}", serialized_films, expire=CACHE_EXPIRE)
         films = [FilmPreview.parse_obj(film) for film in films]
         return films
 

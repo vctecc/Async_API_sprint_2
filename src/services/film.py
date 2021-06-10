@@ -2,6 +2,8 @@ from functools import lru_cache
 from typing import Optional, List
 
 import orjson
+from aioredis import Redis
+from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Search, Q
 from fastapi import Depends
 
@@ -22,13 +24,12 @@ def create_query_search(query: str = None,
     if query:
         multi_match_fields = (
             "title^4", "actors_names^3",
-            "description^2", "genres_names^2",
+            "description^2", "genres^2",
             "writers_names", "directors_names",
         )
         s = s.query("multi_match", query=query, fields=multi_match_fields)
     if genre:
-        s = s.query("nested", path="genres",
-                    query=Q("bool", filter=Q("term", genres__id=genre)))
+        s = s.query(Q('match', path='genres', query=Q('bool', filter=Q('term', genres__id=genre))))
     if sort:
         s = s.sort(sort)
 
@@ -79,7 +80,7 @@ class FilmService:
 
 @lru_cache()
 def get_film_service(
-        cache: Cache = Depends(RedisCache(Film)),
-        storage: Storage = Depends(AsyncElasticsearchStorage(Film, "movies")),
+        cache: Redis = Depends(RedisCache(Film)),
+        storage: AsyncElasticsearch = Depends(AsyncElasticsearchStorage(Film, "movies")),
 ) -> FilmService:
     return FilmService(cache, storage, FILM_CACHE_EXPIRE)

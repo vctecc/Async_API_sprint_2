@@ -6,19 +6,25 @@ logger = logging.getLogger(__name__)
 
 
 class Cache(abc.ABC):
+    def __call__(self):
+        return self
 
     @abc.abstractmethod
     def client(self):
         pass
 
     @abc.abstractmethod
-    def get(self, key: str):
+    async def get(self, key: str):
         pass
 
     @abc.abstractmethod
-    def get_query(self, query: str):
+    async def get_custom_data(self, key: str):
         pass
 
     @abc.abstractmethod
-    def set(self, key: str, value: str, expire: int):
+    async def get_query(self, query: str):
+        pass
+
+    @abc.abstractmethod
+    async def set(self, key: str, value: str, expire: int):
         pass
