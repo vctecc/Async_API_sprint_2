@@ -6,11 +6,11 @@ import orjson
 from elasticsearch_dsl import Q, Search
 from fastapi import Depends
 
-from core.config import FILM_CACHE_EXPIRE, PERSON_CACHE_EXPIRE
+from core.config import FILM_CACHE_EXPIRE, FILM_WORKS_INDEX, PERSONS_INDEX, PERSON_CACHE_EXPIRE
 from db.cache import Cache
+from db.current_cache import get_current_cache
+from db.current_storage import get_current_storage
 from db.storage import Storage
-from db.es_storage import AsyncElasticsearchStorage
-from db.redis_cache import RedisCache
 from models.film import Film, FilmPreview
 from models.person import BasePerson, Person
 
@@ -136,9 +136,9 @@ class PersonService:
 
 @lru_cache()
 def get_person_service(
-        cache: RedisCache = Depends(RedisCache(Person)),
-        film_cache: RedisCache = Depends(RedisCache(Film)),
-        storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(BasePerson, "persons")),
-        film_storage: AsyncElasticsearchStorage = Depends(AsyncElasticsearchStorage(Film, "movies")),
+        cache: Cache = Depends(get_current_cache(model=Person)),
+        film_cache: Cache = Depends(get_current_cache(model=Film)),
+        storage: Storage = Depends(get_current_storage(model=BasePerson, index=PERSONS_INDEX)),
+        film_storage: Storage = Depends(get_current_storage(model=Film, index=FILM_WORKS_INDEX)),
 ) -> PersonService:
     return PersonService(cache, storage, film_cache, film_storage)
