@@ -24,7 +24,6 @@ class AsyncElasticsearchStorage(Storage):
     async def get(self, doc_id: str):
         try:
             document = await self.client.get(self.index, doc_id)
-            print(document)
 
         except elasticsearch.exceptions.NotFoundError:
             return None
@@ -46,3 +45,17 @@ class AsyncElasticsearchStorage(Storage):
 
         items = [self.model(**hit["_source"]) for hit in result["hits"]["hits"]]
         return items
+
+    async def count(self, query: dict) -> int:
+        """
+        Возвращает количество элементов, найденных по запросу. Работает быстрее, чем search.
+        :param query: словарь с параметрами запроса согласно ES DSL.
+        :return: количество найденных элементов.
+        """
+        try:
+            result = await self.client.count(index=self.index, body=query)
+        except elasticsearch.exceptions.RequestError as re:
+            if re.error == "count_phase_execution_exception":
+                raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Malformed request")
+            raise re
+        return result["count"]
