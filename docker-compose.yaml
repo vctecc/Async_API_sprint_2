@@ -31,8 +31,11 @@ services:
       PROJECT_NAME: "Movies API"
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      ELASTIC_HOST:  # get this from .env
-      DEV:  # get this from .env
+      ELASTIC_HOST:
+      DEV:
+      FILM_WORKS_INDEX:
+      PERSONS_INDEX:
+      GENRES_INDEX:
     networks:
       - movies-api-network
     depends_on:

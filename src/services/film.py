@@ -5,11 +5,11 @@ import orjson
 from elasticsearch_dsl import Search, Q
 from fastapi import Depends
 
-from core.config import FILM_CACHE_EXPIRE
+from core.config import FILM_CACHE_EXPIRE, FILM_WORKS_INDEX
 from db.cache import Cache
-from db.cache_implementation import RedisCache
+from db.current_cache import get_current_cache
+from db.current_storage import get_current_storage
 from db.storage import Storage
-from db.storage_implementation import AsyncElasticsearchStorage
 from models.film import Film, FilmPreview
 
 
@@ -79,7 +79,7 @@ class FilmService:
 
 @lru_cache()
 def get_film_service(
-        cache: Cache = Depends(RedisCache(Film)),
-        storage: Storage = Depends(AsyncElasticsearchStorage(Film, "movies")),
+        cache: Cache = Depends(get_current_cache(model=Film)),
+        storage: Storage = Depends(get_current_storage(model=Film, index=FILM_WORKS_INDEX)),
 ) -> FilmService:
     return FilmService(cache, storage, FILM_CACHE_EXPIRE)
