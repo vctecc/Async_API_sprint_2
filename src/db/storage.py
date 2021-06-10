@@ -21,5 +21,5 @@ class Storage(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def count(self, query: dict):
+    async def count(self, query: dict) -> int:
         pass

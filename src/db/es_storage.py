@@ -47,7 +47,12 @@ class AsyncElasticsearchStorage(Storage):
         items = [self.model(**hit["_source"]) for hit in result["hits"]["hits"]]
         return items
 
-    async def count(self, query: dict):
+    async def count(self, query: dict) -> int:
+        """
+        Возвращает количество элементов, найденных по запросу. Работает быстрее, чем search.
+        :param query: словарь с параметрами запроса согласно ES DSL.
+        :return: количество найденных элементов.
+        """
         try:
             result = await self.client.count(index=self.index, body=query)
         except elasticsearch.exceptions.RequestError as re:
