@@ -1,0 +1,25 @@
+services:
+  redis:
+    extends:
+      file: docker-compose.yaml
+      service: redis
+  async_api:
+    extends:
+      file: docker-compose.yaml
+      service: async_api
+    volumes:
+    - ./src:/opt/app/src
+    environment:
+      DEV: 'true'
+  nginx:
+    extends:
+      file: docker-compose.yaml
+      service: nginx
+
+networks:
+  movies-api-network:
+    name: movies-api-network
+    driver: bridge
+
+volumes:
+  redis-data:

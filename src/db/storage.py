@@ -5,8 +5,6 @@ logger = logging.getLogger(__name__)
 
 
 class Storage(abc.ABC):
-    def __call__(self):
-        return self
 
     @abc.abstractmethod
     def client(self):
@@ -18,8 +16,4 @@ class Storage(abc.ABC):
 
     @abc.abstractmethod
     async def search(self, query: dict):
-        pass
-
-    @abc.abstractmethod
-    async def count(self, query: dict) -> int:
         pass
