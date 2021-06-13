@@ -114,7 +114,7 @@ class GenreService(BaseService):
         s = Search()
         if query:
             multi_match_fields = (
-                "name^2", "description^1",
+                "name", "description",
             )
             s = s.query("multi_match", query=query, fields=multi_match_fields)
         if sort:

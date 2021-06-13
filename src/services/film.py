@@ -22,8 +22,8 @@ def create_query_search(query: str = None,
     s = Search()
     if query:
         multi_match_fields = (
-            "title^4", "actors_names^3",
-            "description^2", "genres_names^2",
+            "title", "actors_names",
+            "description", "genres_names",
             "writers_names", "directors_names",
         )
         s = s.query("multi_match", query=query, fields=multi_match_fields)
