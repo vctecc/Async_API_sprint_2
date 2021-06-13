@@ -18,13 +18,5 @@ class Cache(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_custom_data(self, key: str):
-        pass
-
-    @abc.abstractmethod
-    async def get_query(self, query: str):
-        pass
-
-    @abc.abstractmethod
     async def set(self, key: str, value: str, expire: int):
         pass
