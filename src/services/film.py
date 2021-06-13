@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Optional, List
+from typing import Optional, List, ClassVar
 
 import orjson
 from elasticsearch_dsl import Search, Q
@@ -11,6 +11,7 @@ from db.current_cache import get_current_cache
 from db.current_storage import get_current_storage
 from db.storage import Storage
 from models.film import Film, FilmPreview
+from services.basic import BaseService
 
 
 def create_query_search(query: str = None,
@@ -36,22 +37,23 @@ def create_query_search(query: str = None,
     return s[start: start + size].to_dict()
 
 
-class FilmService:
+class FilmService(BaseService):
     prefix = "film_search"
 
-    def __init__(self, cache: Cache, storage: Storage, cache_expire: int):
+    def __init__(self, model: ClassVar, cache: Cache, storage: Storage, cache_expire: int):
+        self.model = model
         self.cache = cache
         self.storage = storage
         self.cache_expire = cache_expire
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
         key = f"{self.prefix}:{film_id}"
-        film = await self.cache.get(key)
+        film = await self.get_record_from_cache(key)
         if not film:
             film = await self.storage.get(film_id)
             if not film:
                 return None
-            await self.cache.set(key, film.json(), self.cache_expire)
+            await self.save_to_cache(key, film.json(), self.cache_expire)
         return film
 
     async def get_by_search(self,
@@ -65,7 +67,7 @@ class FilmService:
         params = (query, page, size, sort, genre)
         key = f"{self.prefix}:{str(params)}"
 
-        films = await self.cache.get_query(key)
+        films = await self.get_records_from_cache(key)
         if not films:
             search = create_query_search(*params)
             films = await self.storage.search(search)
@@ -73,13 +75,13 @@ class FilmService:
                 return []
 
             data = orjson.dumps([f.dict() for f in films], default=str)
-            await self.cache.set(key, data, self.cache_expire)
+            await self.save_to_cache(key, data, self.cache_expire)
         return films
 
 
 @lru_cache()
 def get_film_service(
-        cache: Cache = Depends(get_current_cache(model=Film)),
+        cache: Cache = Depends(get_current_cache()),
         storage: Storage = Depends(get_current_storage(model=Film, index=FILM_WORKS_INDEX)),
 ) -> FilmService:
-    return FilmService(cache, storage, FILM_CACHE_EXPIRE)
+    return FilmService(Film, cache, storage, FILM_CACHE_EXPIRE)
