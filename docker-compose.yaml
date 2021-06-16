@@ -1,0 +1,51 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:1.19.2
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/site_configs:/etc/nginx/conf.d:ro
+    networks:
+      - movies-api-network
+    ports:
+      - 8000:80
+    depends_on:
+      - async_api
+    restart: unless-stopped
+
+  redis:
+    image: redis:6.0.9
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/opt/app/redis/data
+    networks:
+      - movies-api-network
+    restart: unless-stopped
+
+  async_api:
+    container_name: async_api
+    build:
+      context: ./src/
+    environment:
+      PROJECT_NAME: "Movies API"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ELASTIC_HOST:
+      DEV:
+      FILM_WORKS_INDEX:
+      PERSONS_INDEX:
+      GENRES_INDEX:
+    networks:
+      - movies-api-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+
+networks:
+  movies-api-network:
+    name: movies-api-network
+    driver: bridge
