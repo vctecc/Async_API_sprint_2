@@ -1,7 +1,7 @@
 import backoff
 import redis
 
-from tests.functional.settings import TestSettings
+from functional.settings import TestSettings
 
 settings = TestSettings()
 REDIS_WAIT_TIME = 300

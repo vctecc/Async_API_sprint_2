@@ -23,7 +23,8 @@ services:
     environment:
       DEV: 'true'
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /opt/app/
+      PYTHONPATH: /opt/app/tests
+      SERVICE_URL: async_api:8000
     entrypoint: >
       sh -c "pip install -r tests/functional/requirements.txt
       && python tests/functional/utils/wait_for_es.py

@@ -2,7 +2,7 @@ import backoff
 import elasticsearch
 from elasticsearch.client import Elasticsearch
 
-from tests.functional.settings import TestSettings
+from functional.settings import TestSettings
 
 settings = TestSettings()
 ES_WAIT_TIME = 300
