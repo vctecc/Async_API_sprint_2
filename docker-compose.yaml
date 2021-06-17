@@ -26,7 +26,7 @@ services:
   async_api:
     container_name: async_api
     build:
-      context: ./src/
+      context: .
     environment:
       PROJECT_NAME: "Movies API"
       REDIS_HOST: redis
