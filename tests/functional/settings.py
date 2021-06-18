@@ -8,3 +8,5 @@ class TestSettings(BaseSettings):
     redis_port: str = Field("6379", env="REDIS_PORT")
     api_url: str = Field("/api/v1", env="API_URL")
     service_url: str = Field("127.0.0.1", env="SERVICE_URL")
+    es_wait_time: int = Field(300, env='ES_WAIT_TIME')
+    redis_wait_time: int = Field(300, env='REDIS_WAIT_TIME')
