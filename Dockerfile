@@ -4,9 +4,9 @@ EXPOSE 8000
 
 WORKDIR /opt/app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY src/requirements.txt src/requirements.txt
+RUN pip install -r ./src/requirements.txt
 
-COPY . src/
+COPY . .
 
 ENTRYPOINT ["python", "/opt/app/src/main.py"]

@@ -1,0 +1,41 @@
+services:
+  redis:
+    extends:
+      file: docker-compose.yaml
+      service: redis
+  async_api:
+    extends:
+      file: docker-compose.yaml
+      service: async_api
+    volumes:
+      - ./src:/opt/app/src
+    environment:
+      DEV: 'true'
+  nginx:
+    extends:
+      file: docker-compose.yaml
+      service: nginx
+  tests:
+    container_name: async_api_tests
+    extends:
+      file: docker-compose.yaml
+      service: async_api
+    environment:
+      DEV: 'true'
+      PYTHONUNBUFFERED: 1
+      PYTHONPATH: /opt/app/tests
+      SERVICE_URL: async_api:8000
+    entrypoint: >
+      sh -c "pip install -r tests/functional/requirements.txt
+      && python tests/functional/utils/wait_for_es.py
+      && python tests/functional/utils/wait_for_redis.py
+      && pytest ./tests/functional/src"
+    restart: 'no'
+
+networks:
+  movies-api-network:
+    name: movies-api-network
+    driver: bridge
+
+volumes:
+  redis-data:
