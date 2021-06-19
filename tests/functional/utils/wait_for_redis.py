@@ -4,13 +4,12 @@ import redis
 from functional.settings import TestSettings
 
 settings = TestSettings()
-REDIS_WAIT_TIME = 300
 
 
 # TODO: add logs
 @backoff.on_exception(backoff.expo,
                       redis.exceptions.ConnectionError,
-                      max_time=REDIS_WAIT_TIME)
+                      max_time=settings.redis_wait_time)
 def wait_for_redis(r):
     r.ping()
 

@@ -5,13 +5,12 @@ from elasticsearch.client import Elasticsearch
 from functional.settings import TestSettings
 
 settings = TestSettings()
-ES_WAIT_TIME = 300
 
 
 # TODO: add logs
 @backoff.on_exception(backoff.expo,
                       elasticsearch.ConnectionError,
-                      max_time=ES_WAIT_TIME)
+                      max_time=settings.es_wait_time)
 def wait_for_es(es):
     if not es.ping():
         raise elasticsearch.ConnectionError
