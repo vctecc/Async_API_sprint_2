@@ -66,8 +66,6 @@ async def es_from_snapshot(es_client):
 @pytest.fixture
 def make_get_request(session):
     async def inner(method: str, params: dict = None) -> HTTPResponse:
-        if params is None:
-            params = {}
         url = "http://" + SERVICE_URL + API_URL + method
         async with session.get(url, params=params) as response:
             return HTTPResponse(
