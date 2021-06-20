@@ -1,0 +1,50 @@
+services:
+  redis:
+    image: redis:6.0.9
+    ports:
+      - 6379:6379
+    networks:
+      - movies-api-network
+    volumes:
+      - redis-data:/opt/app/redis/data
+    restart: unless-stopped
+
+  tests_es:
+    image: elasticsearch:7.12.1
+    ports:
+      - 9200:9200
+    environment:
+      discovery.type: single-node
+      path.repo:
+    networks:
+      - movies-api-network
+    restart: always
+
+#  async_api:
+#    container_name: async_api
+#    build:
+#      context: .
+#    ports:
+#      - 8000:8000
+#    environment:
+#      PROJECT_NAME: "Movies API"
+#      REDIS_HOST: redis
+#      REDIS_PORT: 6379
+#      ELASTIC_HOST:
+#      DEV:
+#      FILM_WORKS_INDEX:
+#      PERSONS_INDEX:
+#      GENRES_INDEX:
+#    networks:
+#      - movies-api-network
+#    depends_on:
+#      - redis
+#    restart: unless-stopped
+
+volumes:
+  redis-data:
+
+networks:
+  movies-api-network:
+    name: movies-api-network
+    driver: bridge
