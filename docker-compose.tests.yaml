@@ -11,10 +11,6 @@ services:
       - ./src:/opt/app/src
     environment:
       DEV: 'true'
-  nginx:
-    extends:
-      file: docker-compose.yaml
-      service: nginx
   tests:
     container_name: async_api_tests
     extends:
