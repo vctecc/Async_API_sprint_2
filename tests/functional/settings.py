@@ -14,3 +14,5 @@ class TestSettings(BaseSettings):
 
     api_url: str = Field("/api/v1", env="API_URL")
     service_url: str = Field("127.0.0.1:8000", env="SERVICE_URL")
+
+    expected_response_dir = Field("tests/functional/testdata/expected_response")
