@@ -28,7 +28,7 @@ services:
       sh -c "pip install -r tests/functional/requirements.txt
       && python tests/functional/utils/wait_for_es.py
       && python tests/functional/utils/wait_for_redis.py
-      && pytest ./tests/functional/src"
+      && pytest -rP ./tests/functional/src"
     restart: 'no'
   tests_es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
