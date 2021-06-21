@@ -1,13 +1,17 @@
 import os
-from dataclasses import dataclass
+import json
 
 import aiohttp
+import aioredis
 import pytest
 from elasticsearch import AsyncElasticsearch
+from elasticsearch.helpers import async_bulk
 from elasticsearch.client import SnapshotClient
 from multidict import CIMultiDictProxy
+from pydantic import BaseModel
+from dataclasses import dataclass
 
-from functional.settings import TestSettings
+from .settings import TestSettings
 
 settings = TestSettings()
 API_URL = settings.api_url
@@ -36,7 +40,17 @@ async def es_client():
     await client.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
+async def redis_client():
+    redis = await aioredis.create_redis_pool(
+        (settings.redis_host, settings.redis_port),
+        minsize=10, maxsize=20
+    )
+    yield redis
+    redis.close()
+
+
+@pytest.fixture()
 async def es_from_snapshot(es_client):
     """
     Fill ElasticSearch data from snapshot and cleanup after tests.
@@ -74,3 +88,27 @@ def make_get_request(session):
                 status=response.status,
             )
     return inner
+
+
+async def create_index(es_client, name, body, data):
+    await es_client.indices.create(index=name, body=body, ignore=400)
+    await async_bulk(es_client, data, index=name, doc_type="_doc")
+
+    movies_items = {}
+    # FIXME add timeout
+    while not movies_items.get('count'):
+        movies_items = await es_client.count(index=name)
+
+
+@pytest.fixture()
+async def create_movie_index(es_client, redis_client):
+    name = 'movies'
+    data_path = 'tests/functional/testdata/load_data/films.json'
+    index_path = 'tests/functional/testdata/schemes/films.json'
+
+    index_body = json.load(open(index_path))
+    data = json.load(open(data_path))
+    await redis_client.flushall()
+    await create_index(es_client, name, index_body, data)
+    yield
+    await es_client.indices.delete(index=name, ignore=[400, 404])
