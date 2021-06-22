@@ -1,3 +1,4 @@
+aiofiles==0.7.0
 backoff==1.10.0
 pytest==6.2.4
 pytest-asyncio==0.15.1

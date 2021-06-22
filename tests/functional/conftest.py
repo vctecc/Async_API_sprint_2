@@ -1,15 +1,15 @@
-import os
 import json
+import os
+from dataclasses import dataclass
 
+import aiofiles
 import aiohttp
 import aioredis
 import pytest
 from elasticsearch import AsyncElasticsearch
-from elasticsearch.helpers import async_bulk
 from elasticsearch.client import SnapshotClient
+from elasticsearch.helpers import async_bulk
 from multidict import CIMultiDictProxy
-from pydantic import BaseModel
-from dataclasses import dataclass
 
 from .settings import TestSettings
 
@@ -112,3 +112,13 @@ async def create_movie_index(es_client, redis_client):
     await create_index(es_client, name, index_body, data)
     yield
     await es_client.indices.delete(index=name, ignore=[400, 404])
+
+
+@pytest.fixture(scope="function")
+async def expected_json_response(request):
+    """Load expected response from json file with same filename as function name"""
+    file = os.path.join(settings.expected_response_dir, f"{request.node.name}.json")
+    async with aiofiles.open(file) as f:
+        content = await f.read()
+        response = json.loads(content)
+    return response

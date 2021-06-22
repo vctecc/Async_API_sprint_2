@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models.film import FilmPreview
 from models.person import Person
@@ -35,4 +35,6 @@ async def person_films(person_id: str,
                        person_service: PersonService = Depends(get_person_service)
                        ) -> List[FilmPreview]:
     films = await person_service.get_films_by_person(person_id)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="person not found")
     return films

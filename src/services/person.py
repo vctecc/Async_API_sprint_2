@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List, Optional, ClassVar
+from typing import ClassVar, List, Optional
 
 import orjson
 from elasticsearch_dsl import Q, Search
@@ -34,9 +34,10 @@ def create_person_search_query(query: str,
     """
     s = Search()
     start = (page - 1) * page_size
-    q = s.query("match", full_name=query)[start:start + page_size]
-    query = q.to_dict()
-    return query
+    if query:
+        s = s.query("match", full_name=query)
+    s = s[start:start + page_size].to_dict()
+    return s
 
 
 def create_films_by_person_query(person_id):
