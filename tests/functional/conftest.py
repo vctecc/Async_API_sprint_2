@@ -8,7 +8,6 @@ import aioredis
 import pytest
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.client import SnapshotClient
-from elasticsearch.helpers import async_bulk
 from multidict import CIMultiDictProxy
 
 from .settings import TestSettings
@@ -90,26 +89,24 @@ def make_get_request(session):
     return inner
 
 
-async def create_index(es_client, name, body, data):
+async def create_index(es_client, name, scheme_path, data_path):
+    body = json.load(open(scheme_path))
+    data = json.load(open(data_path))
     await es_client.indices.create(index=name, body=body, ignore=400)
-    await async_bulk(es_client, data, index=name, doc_type="_doc")
+    await es_client.bulk(body=data, index=name)
 
-    movies_items = {}
+    items = {}
     # FIXME add timeout
-    while not movies_items.get('count'):
-        movies_items = await es_client.count(index=name)
+    while not items.get("count"):
+        items = await es_client.count(index=name)
 
 
 @pytest.fixture()
 async def create_movie_index(es_client, redis_client):
-    name = 'movies'
-    data_path = 'tests/functional/testdata/load_data/films.json'
-    index_path = 'tests/functional/testdata/schemes/films.json'
-
-    index_body = json.load(open(index_path))
-    data = json.load(open(data_path))
-    await redis_client.flushall()
-    await create_index(es_client, name, index_body, data)
+    name = "movies"
+    data_path = settings.load_data_dir.joinpath("movies.json")
+    scheme_path = settings.es_schemes_dir.joinpath("movies.json")
+    await create_index(es_client, name, scheme_path, data_path)
     yield
     await es_client.indices.delete(index=name, ignore=[400, 404])
 
@@ -117,7 +114,7 @@ async def create_movie_index(es_client, redis_client):
 @pytest.fixture(scope="function")
 async def expected_json_response(request):
     """Load expected response from json file with same filename as function name"""
-    file = os.path.join(settings.expected_response_dir, f"{request.node.name}.json")
+    file = settings.expected_response_dir.joinpath(f"{request.node.name}.json")
     async with aiofiles.open(file) as f:
         content = await f.read()
         response = json.loads(content)
