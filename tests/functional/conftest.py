@@ -92,7 +92,7 @@ def make_get_request(session):
 async def create_index(es_client, name, scheme_path, data_path):
     body = json.load(open(scheme_path))
     data = json.load(open(data_path))
-    await es_client.indices.create(index=name, body=body, ignore=400)
+    await es_client.indices.create(index=name, body=body)
     await es_client.bulk(body=data, index=name)
 
     items = {}
@@ -106,6 +106,8 @@ async def create_movie_index(es_client, redis_client):
     name = "movies"
     data_path = settings.load_data_dir.joinpath("movies.json")
     scheme_path = settings.es_schemes_dir.joinpath("movies.json")
+    await es_client.indices.delete(index=name, ignore=[400, 404])
+    await redis_client.flushall()
     await create_index(es_client, name, scheme_path, data_path)
     yield
     await es_client.indices.delete(index=name, ignore=[400, 404])

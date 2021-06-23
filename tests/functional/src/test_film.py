@@ -4,43 +4,75 @@ API_URL = '/film/'
 
 
 @pytest.mark.asyncio
-async def test_get_all(make_get_request, create_movie_index):
+async def test_film_get_by_id(make_get_request, create_movie_index):
+    some_id = "010feda9-8137-453b-b1c8-1038600d4399"
+    response = await make_get_request(f"{API_URL}{some_id}", {})
+    assert response.status == 200
+
+
+@pytest.mark.asyncio
+async def test_film_get_all(make_get_request, create_movie_index):
     response = await make_get_request(API_URL, {})
     assert response.status == 200
+    assert len(response.body) == 3
 
 
 @pytest.mark.asyncio
-async def test_get_by_id(make_get_request, create_movie_index):
-    response = await make_get_request(API_URL + "010feda9-8137-453b-b1c8-1038600d4399", {})
+@pytest.mark.parametrize(
+    ('page_size', 'page_number'),
+    (
+        (1, 1), (1, 2), (2, 1), (0, 10))
+    )
+async def test_film_paging(make_get_request, create_movie_index, page_size, page_number):
+    response = await make_get_request(
+        API_URL,
+        {'page[number]': page_number, 'page[size]': page_size}
+    )
     assert response.status == 200
+    assert len(response.body) == page_size
 
 
 @pytest.mark.asyncio
-async def test_no_exist_film(make_get_request, create_movie_index):
-    response = await make_get_request(API_URL + "ab2811a3-3295-4564-988d-1ebc2ee03ab7", {})
-    assert response.status == 404
-    assert response.body == {"detail": "film not found"}
+async def test_film_paging_invalid_page(make_get_request):
+    response = await make_get_request(API_URL, {'page[number]': -1})
+    assert response.status == 422
 
 
 @pytest.mark.asyncio
-async def test_search(make_get_request, create_movie_index):
-    response = await make_get_request(API_URL, {"query": "Star"})
+async def test_film_search(make_get_request, create_movie_index):
+    response = await make_get_request(
+        f"{API_URL}search/",
+        {"query": "Rogers"}
+    )
     assert response.status == 200
-    assert response.body == []
+    assert len(response.body) == 1
 
 
 @pytest.mark.asyncio
-async def test_search_not_found(make_get_request, create_movie_index):
-    response = await make_get_request(API_URL, {"query": "NotFoundFilm"})
+async def test_film_search_unknown(make_get_request, create_movie_index):
+    response = await make_get_request(
+        f"{API_URL}search/",
+        {"query": "UnknownFilm"}
+    )
     assert response.status == 200
-    assert response.body == []
+    assert len(response.body) == 0
 
 
 @pytest.mark.asyncio
-async def test_filter_genre(make_get_request):
+async def test_film_filter_genre(make_get_request, create_movie_index):
     response = await make_get_request(
         API_URL,
         {"filter[genre]": "b7d7086c-4778-493f-909f-04629b2bba3c"}
     )
     assert response.status == 200
     assert len(response.body) == 2
+
+
+@pytest.mark.asyncio
+async def test_film_filter_unknown_genre(make_get_request, create_movie_index):
+    response = await make_get_request(
+        API_URL,
+        {"filter[genre]": "deadbeaf"}
+    )
+    assert response.status == 200
+    assert len(response.body) == 0
