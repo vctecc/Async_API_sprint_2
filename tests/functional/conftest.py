@@ -106,7 +106,7 @@ async def create_movie_index(es_client, redis_client):
     name = "movies"
     data_path = settings.load_data_dir.joinpath("movies.json")
     scheme_path = settings.es_schemes_dir.joinpath("movies.json")
-    await es_client.indices.delete(index=name, ignore=[400, 404])
+    
     await redis_client.flushall()
     await create_index(es_client, name, scheme_path, data_path)
     yield
