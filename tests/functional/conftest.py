@@ -90,8 +90,10 @@ def make_get_request(session):
 
 
 async def create_index(es_client, name, scheme_path, data_path):
-    body = json.load(open(scheme_path))
-    data = json.load(open(data_path))
+    with open(scheme_path) as fobj:
+        body = json.load(fobj)
+    with open(data_path) as fobj:
+        data = json.load(fobj)
     await es_client.indices.create(index=name, body=body)
     await es_client.bulk(body=data, index=name)
 
