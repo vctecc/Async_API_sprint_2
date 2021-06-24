@@ -9,12 +9,10 @@ services:
       service: async_api
     volumes:
     - ./src:/opt/app/src
+    ports:
+    - 8000:8000
     environment:
       DEV: 'true'
-  nginx:
-    extends:
-      file: docker-compose.yaml
-      service: nginx
 
 networks:
   movies-api-network:

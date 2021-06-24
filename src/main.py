@@ -6,12 +6,11 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import film, person, genre
+from api.v1 import film, genre, person
 from core import config
 from core.config import DEV
 from core.logger import LOGGING
 from db import es_storage, redis_cache
-
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -23,7 +22,10 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup():
-    redis_cache.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20)
+    redis_cache.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT),
+                                                         minsize=10,
+                                                         maxsize=20,
+                                                         timeout=1)
     es_storage.es = AsyncElasticsearch(hosts=[f"{config.ELASTIC_HOST}:{config.ELASTIC_PORT}"])
 
 
