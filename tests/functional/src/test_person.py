@@ -47,8 +47,7 @@ async def test_search_person_pagination(make_get_request, es_from_snapshot, page
     response = await make_get_request("/person/search/",
                                       params={
                                           "page[number]": page_number,
-                                          "page[size]": page_size
-                                      }
+                                          "page[size]": page_size}
                                       )
     assert response.status == 200
     assert len(response.body) == int(page_size)
@@ -73,8 +72,7 @@ async def test_search_person_pagination_borders(make_get_request,
     response = await make_get_request("/person/search/",
                                       params={
                                           "page[number]": page_number,
-                                          "page[size]": page_size
-                                      }
+                                          "page[size]": page_size}
                                       )
     assert response.status == 200
     assert len(response.body) == expected_count
@@ -100,7 +98,6 @@ async def test_search_person_pagination_invalid_input(make_get_request,
     response = await make_get_request("/person/search/",
                                       params={
                                           "page[number]": page_number,
-                                          "page[size]": page_size
-                                      }
+                                          "page[size]": page_size}
                                       )
     assert response.status == 422
