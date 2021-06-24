@@ -1,10 +1,12 @@
 from http import HTTPStatus
 from typing import ClassVar
 
+import backoff
 import elasticsearch
 from elasticsearch import AsyncElasticsearch
 from fastapi import HTTPException
 
+from core.config import BACKOFF_FACTOR, STORAGE_BACKOFF_TIME
 from db.storage import Storage
 
 es: AsyncElasticsearch = None
@@ -21,6 +23,10 @@ class AsyncElasticsearchStorage(Storage):
     def client(self) -> AsyncElasticsearch:
         return es
 
+    @backoff.on_exception(backoff.expo,
+                          elasticsearch.ConnectionError,
+                          max_time=STORAGE_BACKOFF_TIME,
+                          factor=BACKOFF_FACTOR)
     async def get(self, doc_id: str):
         try:
             document = await self.client.get(self.index, doc_id)
@@ -29,9 +35,17 @@ class AsyncElasticsearchStorage(Storage):
             return None
         return self.model(**document["_source"])
 
+    @backoff.on_exception(backoff.expo,
+                          elasticsearch.ConnectionError,
+                          max_time=STORAGE_BACKOFF_TIME,
+                          factor=BACKOFF_FACTOR)
     async def get_many(self, **kwargs):
         pass
 
+    @backoff.on_exception(backoff.expo,
+                          elasticsearch.ConnectionError,
+                          max_time=STORAGE_BACKOFF_TIME,
+                          factor=BACKOFF_FACTOR)
     async def search(self, query: dict):
         try:
             result = await self.client.search(index=self.index, body=query)
@@ -46,6 +60,10 @@ class AsyncElasticsearchStorage(Storage):
         items = [self.model(**hit["_source"]) for hit in result["hits"]["hits"]]
         return items
 
+    @backoff.on_exception(backoff.expo,
+                          elasticsearch.ConnectionError,
+                          max_time=STORAGE_BACKOFF_TIME,
+                          factor=BACKOFF_FACTOR)
     async def count(self, query: dict) -> int:
         """
         Возвращает количество элементов, найденных по запросу. Работает быстрее, чем search.

@@ -15,10 +15,14 @@ DEV = os.getenv("DEV") or False
 # Настройки Redis
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+CACHE_BACKOFF_TIME = os.getenv("CACHE_BACKOFF_TIME", 10)
 
 # Настройки Elasticsearch
 ELASTIC_HOST = os.getenv("ELASTIC_HOST", "127.0.0.1")
 ELASTIC_PORT = int(os.getenv("ELASTIC_PORT", 9200))
+STORAGE_BACKOFF_TIME = os.getenv("STORAGE_BACKOFF_TIME", 10)
+
+BACKOFF_FACTOR = os.getenv("BACKOFF_FACTOR", 0.5)
 
 # Корень проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
