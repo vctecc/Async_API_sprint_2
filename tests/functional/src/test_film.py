@@ -19,14 +19,14 @@ async def test_film_get_all(make_get_request, create_movie_index):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ('page_size', 'page_number'),
+    ("page_size", "page_number"),
     (
         (1, 1), (1, 2), (2, 1), (0, 10))
     )
 async def test_film_paging(make_get_request, create_movie_index, page_size, page_number):
     response = await make_get_request(
         API_URL,
-        {'page[number]': page_number, 'page[size]': page_size}
+        {"page[number]": page_number, "page[size]": page_size}
     )
     assert response.status == 200
     assert len(response.body) == page_size
