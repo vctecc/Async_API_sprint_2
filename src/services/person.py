@@ -115,7 +115,7 @@ class PersonService(BaseService):
             serialized_persons = orjson.dumps([p.dict() for p in persons], default=str)
             await self.save_to_cache(f"{self.prefix}:{query}", serialized_persons, PERSON_CACHE_EXPIRE)
         if not persons:
-            return None
+            return []
         return persons
 
     async def get_films_by_person(self, person_id: str) -> List[FilmPreview]:

@@ -22,8 +22,8 @@ async def person_details(person_id: str, person_service: PersonService = Depends
 
 @router.get("/search/", response_model=List[Person])
 async def person_search(query: str = "",
-                        page: Optional[int] = Query(1, alias="page[number]"),
-                        page_size: Optional[int] = Query(PERSONS_PAGE_SIZE, alias="page[size]"),
+                        page: Optional[int] = Query(1, alias="page[number]", ge=1),
+                        page_size: Optional[int] = Query(PERSONS_PAGE_SIZE, alias="page[size]", ge=1),
                         person_service: PersonService = Depends(get_person_service)
                         ) -> List[Person]:
     persons = await person_service.search(query, page, page_size)
