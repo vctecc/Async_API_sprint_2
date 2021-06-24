@@ -1,8 +1,6 @@
-from aioredis import Redis
-from typing import Optional, ClassVar, List
+from typing import Optional
 
-from pydantic import BaseModel
-import orjson
+from aioredis import Redis
 
 from db.cache import Cache
 
