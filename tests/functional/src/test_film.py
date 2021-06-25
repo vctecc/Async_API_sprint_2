@@ -4,7 +4,7 @@ API_URL = '/film/'
 
 
 @pytest.mark.asyncio
-async def test_film_get_by_id(make_get_request, create_movie_index,
+async def test_film_get_by_id(make_get_request, initialize_environment,
                               expected_json_response):
     some_id = "010feda9-8137-453b-b1c8-1038600d4399"
     response = await make_get_request(f"{API_URL}{some_id}", {})
@@ -13,7 +13,7 @@ async def test_film_get_by_id(make_get_request, create_movie_index,
 
 
 @pytest.mark.asyncio
-async def test_film_get_all(make_get_request, create_movie_index):
+async def test_film_get_all(make_get_request, initialize_environment):
     response = await make_get_request(API_URL, {})
     assert response.status == 200
     assert len(response.body) == 3
@@ -25,7 +25,7 @@ async def test_film_get_all(make_get_request, create_movie_index):
     (
         (1, 1), (1, 2), (2, 1))
     )
-async def test_film_paging(make_get_request, create_movie_index,
+async def test_film_paging(make_get_request, initialize_environment,
                            page_size, page_number):
     response = await make_get_request(
         API_URL,
@@ -42,7 +42,7 @@ async def test_film_paging_invalid_page(make_get_request):
 
 
 @pytest.mark.asyncio
-async def test_film_search(make_get_request, create_movie_index):
+async def test_film_search(make_get_request, initialize_environment):
     response = await make_get_request(
         f"{API_URL}search/",
         {"query": "Rogers"}
@@ -52,7 +52,7 @@ async def test_film_search(make_get_request, create_movie_index):
 
 
 @pytest.mark.asyncio
-async def test_film_search_unknown(make_get_request, create_movie_index):
+async def test_film_search_unknown(make_get_request, initialize_environment):
     response = await make_get_request(
         f"{API_URL}search/",
         {"query": "UnknownFilm"}
@@ -62,7 +62,7 @@ async def test_film_search_unknown(make_get_request, create_movie_index):
 
 
 @pytest.mark.asyncio
-async def test_film_filter_genre(make_get_request, create_movie_index):
+async def test_film_filter_genre(make_get_request, initialize_environment):
     response = await make_get_request(
         API_URL,
         {"filter[genre]": "b7d7086c-4778-493f-909f-04629b2bba3c"}
@@ -72,7 +72,7 @@ async def test_film_filter_genre(make_get_request, create_movie_index):
 
 
 @pytest.mark.asyncio
-async def test_film_filter_unknown_genre(make_get_request, create_movie_index):
+async def test_film_filter_unknown_genre(make_get_request, initialize_environment):
     response = await make_get_request(
         API_URL,
         {"filter[genre]": "deadbeaf"}

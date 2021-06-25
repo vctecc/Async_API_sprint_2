@@ -21,3 +21,4 @@ class TestSettings(BaseSettings):
     es_schemes_dir: Path = Field("tests/functional/testdata/schemes")
     expected_response_dir: Path = Field("tests/functional/testdata/expected_response")
 
+    timeout: int = Field(30)

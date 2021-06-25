@@ -1,13 +1,16 @@
 import json
 import os
 from dataclasses import dataclass
+from datetime import datetime
 
 import aiofiles
 import aiohttp
 import aioredis
 import pytest
+
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.client import SnapshotClient
+from elasticsearch.helpers import async_bulk
 from multidict import CIMultiDictProxy
 
 from .settings import TestSettings
@@ -89,30 +92,49 @@ def make_get_request(session):
     return inner
 
 
-async def create_index(es_client, name, scheme_path, data_path):
-    with open(scheme_path) as fobj:
-        body = json.load(fobj)
-    with open(data_path) as fobj:
-        data = json.load(fobj)
-    await es_client.indices.create(index=name, body=body)
-    await es_client.bulk(body=data, index=name)
+def read_json_file(file_path):
+    with open(file_path) as json_file:
+        json_data = json.load(json_file)
+    return json_data
+
+
+async def create_index(es_client, index_name):
+    index_path = settings.es_schemes_dir.joinpath(f"{index_name}.json")
+    index = read_json_file(index_path)
+    await es_client.indices.create(index=index_name, body=index, ignore=400)
+
+
+async def load_data_in_index(es_client, index_name):
+    data_path = settings.load_data_dir.joinpath(f"{index_name}.json")
+    data = read_json_file(data_path)
+    await async_bulk(es_client, data, index=index_name)
 
     items = {}
-    # FIXME add timeout
+
+    start_time = datetime.now()
+
     while not items.get("count"):
-        items = await es_client.count(index=name)
+        items = await es_client.count(index=index_name)
+        seconds = (datetime.now() - start_time).seconds
+
+        if seconds >= settings.timeout:
+            raise TimeoutError(f"Превышено допустимое время ожидания при загрузке данных в ES в индекс {index_name}.")
+
+
+async def initialize_es_index(es_client, index_name):
+    await create_index(es_client, index_name)
+    await load_data_in_index(es_client, index_name)
 
 
 @pytest.fixture()
-async def create_movie_index(es_client, redis_client):
-    name = "movies"
-    data_path = settings.load_data_dir.joinpath("movies.json")
-    scheme_path = settings.es_schemes_dir.joinpath("movies.json")
-    
-    await redis_client.flushall()
-    await create_index(es_client, name, scheme_path, data_path)
+async def initialize_environment(es_client, redis_client):
+    indexes = ("movies", "persons", "genres")
+    for index in indexes:
+        await initialize_es_index(es_client, index)
     yield
-    await es_client.indices.delete(index=name, ignore=[400, 404])
+    await redis_client.flushall()
+    for index in indexes:
+        await es_client.indices.delete(index=index, ignore=[400, 404])
 
 
 @pytest.fixture(scope="function")
