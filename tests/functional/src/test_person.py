@@ -39,7 +39,7 @@ async def test_person_films_by_id(make_get_request, initialize_environment, expe
             (1, 4164),  # total number of persons
     )
 )
-async def test_search_person_pagination(make_get_request, es_from_snapshot, page_number, page_size):
+async def test_search_person_pagination(make_get_request, initialize_environment, page_number, page_size):
     """Pagination tests for common cases"""
     # only check response status and number of elements here
     response = await make_get_request("/person/search/",
@@ -63,7 +63,7 @@ async def test_search_person_pagination(make_get_request, es_from_snapshot, page
     )
 )
 async def test_search_person_pagination_borders(make_get_request,
-                                                es_from_snapshot,
+                                                initialize_environment,
                                                 page_number,
                                                 page_size,
                                                 expected_count):
@@ -90,7 +90,7 @@ async def test_search_person_pagination_borders(make_get_request,
     )
 )
 async def test_search_person_pagination_invalid_input(make_get_request,
-                                                      es_from_snapshot,
+                                                      initialize_environment,
                                                       page_number,
                                                       page_size):
     response = await make_get_request("/person/search/",
