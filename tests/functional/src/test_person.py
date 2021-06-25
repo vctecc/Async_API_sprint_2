@@ -1,6 +1,7 @@
 import pytest
 
-API_URL = '/genre/'
+API_URL = '/person/'
+
 
 @pytest.mark.asyncio
 async def test_search_person(make_get_request, initialize_environment, expected_json_response):
