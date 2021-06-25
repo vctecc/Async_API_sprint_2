@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import BaseSettings, Field
 
 
@@ -15,4 +17,9 @@ class TestSettings(BaseSettings):
     api_url: str = Field("/api/v1", env="API_URL")
     service_url: str = Field("127.0.0.1:8000", env="SERVICE_URL")
 
-    expected_response_dir = Field("tests/functional/testdata/expected_response")
+    load_data_dir: Path = Field("tests/functional/testdata/load_data")
+    es_schemes_dir: Path = Field("tests/functional/testdata/schemes")
+
+    expected_response_dir: Path = Field("tests/functional/testdata/expected_response")
+
+    timeout: int = Field(30)
