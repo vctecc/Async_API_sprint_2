@@ -7,6 +7,10 @@ class TestSettings(BaseSettings):
     es_host: str = Field("127.0.0.1", env="ELASTIC_HOST")
     es_port: str = Field("9200", env="ELASTIC_PORT")
     es_wait_time: int = Field(300, env="ES_WAIT_TIME")
+
+    es_indexes: tuple = Field(("movies", "persons", "genres"))
+    load_index_timeout: int = Field(30)
+
     es_snapshot_repo: str = Field("es-snapshots")
     es_snapshot_loc: str = Field("/usr/share/elasticsearch/backup", env="path.repo")
 
@@ -20,5 +24,3 @@ class TestSettings(BaseSettings):
     load_data_dir: Path = Field("tests/functional/testdata/load_data")
     es_schemes_dir: Path = Field("tests/functional/testdata/schemes")
     expected_response_dir: Path = Field("tests/functional/testdata/expected_response")
-
-    timeout: int = Field(30)

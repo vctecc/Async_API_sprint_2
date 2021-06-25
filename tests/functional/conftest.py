@@ -117,8 +117,8 @@ async def load_data_in_index(es_client, index_name):
         items = await es_client.count(index=index_name)
         seconds = (datetime.now() - start_time).seconds
 
-        if seconds >= settings.timeout:
-            raise TimeoutError(f"Превышено допустимое время ожидания при загрузке данных в ES в индекс {index_name}.")
+        if seconds >= settings.load_index_timeout:
+            raise TimeoutError(f"Time-out for loading data into ES index {index_name}.")
 
 
 async def initialize_es_index(es_client, index_name):
@@ -128,12 +128,11 @@ async def initialize_es_index(es_client, index_name):
 
 @pytest.fixture()
 async def initialize_environment(es_client, redis_client):
-    indexes = ("movies", "persons", "genres")
-    for index in indexes:
+    for index in settings.es_indexes:
         await initialize_es_index(es_client, index)
     yield
     await redis_client.flushall()
-    for index in indexes:
+    for index in settings.es_indexes:
         await es_client.indices.delete(index=index, ignore=[400, 404])
 
 
