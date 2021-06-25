@@ -128,7 +128,7 @@ async def initialize_es_index(es_client, index_name):
 
 @pytest.fixture()
 async def initialize_environment(es_client, redis_client):
-    indexes = ("films", "persons", "genres")
+    indexes = ("movies", "persons", "genres")
 
     for index in indexes:
         await initialize_es_index(es_client, index)
