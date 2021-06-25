@@ -14,35 +14,34 @@ services:
     ports:
       - 9200:9200
     environment:
-      discovery.type: single-node
-      path.repo:
+      discovery.type: "single-node"
     networks:
       - movies-api-network
-    restart: always
+    volumes:
+      - elasticdb:/opt/app/elasticsearch/data
+    restart:
+        on-failure
 
-#  async_api:
-#    container_name: async_api
-#    build:
-#      context: .
-#    ports:
-#      - 8000:8000
-#    environment:
-#      PROJECT_NAME: "Movies API"
-#      REDIS_HOST: redis
-#      REDIS_PORT: 6379
-#      ELASTIC_HOST:
-#      DEV:
-#      FILM_WORKS_INDEX:
-#      PERSONS_INDEX:
-#      GENRES_INDEX:
-#    networks:
-#      - movies-api-network
-#    depends_on:
-#      - redis
-#    restart: unless-stopped
+  async_api:
+    container_name: async_api
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    environment:
+      PROJECT_NAME: "Movies API"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ELASTIC_HOST: tests_es
+    networks:
+      - movies-api-network
+    depends_on:
+      - redis
+    restart: unless-stopped
 
 volumes:
   redis-data:
+  elasticdb:
 
 networks:
   movies-api-network:
