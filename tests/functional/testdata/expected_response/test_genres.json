@@ -1,0 +1,52 @@
+[
+    {
+        "id": "ee1e6155-046c-4af9-a1bf-2c505e58787e",
+        "name": "Family",
+        "popularity": 95
+    },
+    {
+        "id": "3e629e7f-6504-4b0e-bf65-92b201953e6d",
+        "name": "Sport",
+        "popularity": 23
+    },
+    {
+        "id": "5f2f22d7-6fd3-4384-b50d-2799b8b1d448",
+        "name": "Animation",
+        "popularity": 141
+    },
+    {
+        "id": "a111743c-2be6-4813-8496-dd2a32766d28",
+        "name": "Thriller",
+        "popularity": 27
+    },
+    {
+        "id": "4c913e08-420e-4474-abee-dd3407e91c78",
+        "name": "Short",
+        "popularity": 172
+    },
+    {
+        "id": "70c42a74-e73a-46e8-9e60-3a6cc59c9fcd",
+        "name": "Musical",
+        "popularity": 24
+    },
+    {
+        "id": "382febe2-b3e0-4890-84d8-6f3354a06421",
+        "name": "Crime",
+        "popularity": 14
+    },
+    {
+        "id": "bf6d474b-fbab-463b-a185-ebfc797f96a5",
+        "name": "Music",
+        "popularity": 69
+    },
+    {
+        "id": "04f28f12-ff34-4f91-93d1-777b27d1b0e1",
+        "name": "Sci-Fi",
+        "popularity": 311
+    },
+    {
+        "id": "6626710a-7b09-4f63-97a6-1782f2e8c059",
+        "name": "Comedy",
+        "popularity": 206
+    }
+]
