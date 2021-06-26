@@ -110,7 +110,6 @@ async def load_data_in_index(es_client, index_name):
     await async_bulk(es_client, data, index=index_name)
 
     items = {}
-
     start_time = datetime.now()
 
     while not items.get("count"):

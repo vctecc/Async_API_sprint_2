@@ -1,3 +1,17 @@
+# Тестирование Async API: Проектная работа 5 спринта
+## Инструкция по запуску
+Для тестирования в контейнере запустите docker compose, находясь в корневой папке проекта:
+```commandline
+docker compose -f docker-compose.tests.yaml --env-file tests.env up --build
+```
+Для запуск локальных тестов, находясь в корневой папке проекта:
+```commandline
+pip install -r requirements.txt
+docker compose -f docker-compose.tests_local.yaml --env-file tests.env up --build -d
+pytest
+```
+Чтобы посмотреть документацию к API, перейдите по адресу `http://127.0.0.1:8000/api/openapi`.
+
 # Async API: Проектная работа 4 спринта
 ## Инструкция по запуску
 ### Запуск и наполнение ElasticSearch
@@ -16,6 +30,5 @@ https://github.com/Lagbjorn/ETL
 docker compose --env-file ./review.env up --build
 ```
 
-Автоматических тестов на данный момент нет. 
 Перейдите по адресу `http://127.0.0.1:8000/api/openapi`, чтобы открыть автоматически
 сгенерированную документацию. Там же можете протестировать работу API вручную.

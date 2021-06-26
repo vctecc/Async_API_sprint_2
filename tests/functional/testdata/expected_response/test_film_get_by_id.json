@@ -1,75 +1,22 @@
 {
-    "id": "010feda9-8137-453b-b1c8-1038600d4399",
-    "imdb_rating": 6.1,
-    "title": "Star in the Dust",
-    "description": "The sheriff of Gunlock is planning to hang Sam Hall, who shot three farmers found on cattle land, at sundown. At the casino, betting is 8 to 3 he won't make it. The cattlemen are set to rescue Sam; the farmers hope to lynch him before he can be rescued; and Hall schemes for escape with his girl Nellie. But Sheriff Jorden is most concerned with finding out who hired Hall: a leading suspect is the sheriff's future brother-in-law.",
-    "actors_names": [
-      "John Agar",
-      "Mamie Van Doren",
-      "Richard Boone",
-      "Coleen Gray"
-    ],
-    "writers_names": [
-      "Lee Leighton",
-      "Oscar Brodney"
-    ],
-    "directors_names": [
-      "Charles F. Haas"
-    ],
-    "genres_names": [
-      "Romance",
-      "Drama",
-      "Western"
-    ],
-    "actors": [
+  "id": "0fdad8d4-6672-46a4-b5c6-529faa368ac7",
+  "title": "Jade: The Reality Star Who Changed Britain",
+  "description": "Series exploring the life of Jade Goody: the UK's most loved - and hated - reality TV star.",
+  "imdb_rating": 7.5,
+  "genres": [
       {
-        "id": "9c7736cd-fe50-4b98-8cad-26a8f3b1b4bb",
-        "full_name": "John Agar"
-      },
-      {
-        "id": "eac593c4-84d7-4f81-af8a-490386117327",
-        "full_name": "Mamie Van Doren"
-      },
-      {
-        "id": "54077107-cd9d-4fe8-a498-e93758fa6f29",
-        "full_name": "Richard Boone"
-      },
-      {
-        "id": "dcb973f4-e07f-4257-962d-b9a7cc07d79d",
-        "full_name": "Coleen Gray"
+          "id": "d55e7647-bf7a-4011-8f4c-04025adfa127",
+          "name": "Documentary",
+          "description": null
       }
-    ],
-    "writers": [
-      {
-        "id": "8a425c50-9433-4c00-b262-f72cf131aa7c",
-        "full_name": "Lee Leighton"
-      },
-      {
-        "id": "544596a7-bec8-4af0-87d2-e4f07756d6e0",
-        "full_name": "Oscar Brodney"
-      }
-    ],
-    "directors": [
-      {
-        "id": "d6a73378-1259-492a-a3ee-7bf66e13dd66",
-        "full_name": "Charles F. Haas"
-      }
-    ],
-    "genres": [
-      {
-        "description": null,
-        "id": "b7d7086c-4778-493f-909f-04629b2bba3c",
-        "name": "Romance"
-      },
-      {
-        "description": null,
-        "id": "16a5c9f1-1939-487d-aa1a-a5aed5a72f85",
-        "name": "Drama"
-      },
-      {
-        "description": null,
-        "id": "de6f20d6-91f0-446d-af7f-e435ce97b539",
-        "name": "Western"
-      }
-    ]
+  ],
+  "genres_names": [
+      "Documentary"
+  ],
+  "writers_names": [],
+  "actors_names": [],
+  "directors_names": [],
+  "writers": [],
+  "actors": [],
+  "directors": []
 }
