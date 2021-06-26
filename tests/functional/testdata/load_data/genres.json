@@ -1,9 +1,8 @@
 [
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "ee1e6155-046c-4af9-a1bf-2c505e58787e",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "ee1e6155-046c-4af9-a1bf-2c505e58787e",
             "name": "Family",
@@ -12,9 +11,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "3e629e7f-6504-4b0e-bf65-92b201953e6d",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "3e629e7f-6504-4b0e-bf65-92b201953e6d",
             "name": "Sport",
@@ -23,9 +21,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "5f2f22d7-6fd3-4384-b50d-2799b8b1d448",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "5f2f22d7-6fd3-4384-b50d-2799b8b1d448",
             "name": "Animation",
@@ -34,9 +31,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "a111743c-2be6-4813-8496-dd2a32766d28",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "a111743c-2be6-4813-8496-dd2a32766d28",
             "name": "Thriller",
@@ -45,9 +41,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "4c913e08-420e-4474-abee-dd3407e91c78",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "4c913e08-420e-4474-abee-dd3407e91c78",
             "name": "Short",
@@ -56,9 +51,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "70c42a74-e73a-46e8-9e60-3a6cc59c9fcd",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "70c42a74-e73a-46e8-9e60-3a6cc59c9fcd",
             "name": "Musical",
@@ -67,9 +61,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "382febe2-b3e0-4890-84d8-6f3354a06421",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "382febe2-b3e0-4890-84d8-6f3354a06421",
             "name": "Crime",
@@ -78,9 +71,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "bf6d474b-fbab-463b-a185-ebfc797f96a5",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "bf6d474b-fbab-463b-a185-ebfc797f96a5",
             "name": "Music",
@@ -89,9 +81,8 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "04f28f12-ff34-4f91-93d1-777b27d1b0e1",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "04f28f12-ff34-4f91-93d1-777b27d1b0e1",
             "name": "Sci-Fi",
@@ -100,12 +91,171 @@
     },
     {
         "_index": "genres",
-        "_type": "_doc",
         "_id": "6626710a-7b09-4f63-97a6-1782f2e8c059",
-        "_score": 1,
+        "_score": 1.0,
         "_source": {
             "id": "6626710a-7b09-4f63-97a6-1782f2e8c059",
             "name": "Comedy",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "d55e7647-bf7a-4011-8f4c-04025adfa127",
+        "_score": 1.0,
+        "_source": {
+            "id": "d55e7647-bf7a-4011-8f4c-04025adfa127",
+            "name": "Documentary",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "026f2d39-c653-45f0-b242-b790885d83f3",
+        "_score": 1.0,
+        "_source": {
+            "id": "026f2d39-c653-45f0-b242-b790885d83f3",
+            "name": "Reality-TV",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "9c8f5a74-b648-4c94-834a-e8f90e626503",
+        "_score": 1.0,
+        "_source": {
+            "id": "9c8f5a74-b648-4c94-834a-e8f90e626503",
+            "name": "Drama",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "1fbad76d-a4e9-45a9-ae38-33283d8efca1",
+        "_score": 1.0,
+        "_source": {
+            "id": "1fbad76d-a4e9-45a9-ae38-33283d8efca1",
+            "name": "Adventure",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "842d3f45-e785-4f21-8424-5400c4449048",
+        "_score": 1.0,
+        "_source": {
+            "id": "842d3f45-e785-4f21-8424-5400c4449048",
+            "name": "Action",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "c4d67072-a695-407a-b574-cc622123ebc3",
+        "_score": 1.0,
+        "_source": {
+            "id": "c4d67072-a695-407a-b574-cc622123ebc3",
+            "name": "Game-Show",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "c1ecb11a-edb0-43c1-90f7-5060acad62c8",
+        "_score": 1.0,
+        "_source": {
+            "id": "c1ecb11a-edb0-43c1-90f7-5060acad62c8",
+            "name": "War",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "11464993-e1e6-4396-ae4e-65ee7c7b210e",
+        "_score": 1.0,
+        "_source": {
+            "id": "11464993-e1e6-4396-ae4e-65ee7c7b210e",
+            "name": "Talk-Show",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "d10e2d77-6054-472a-b296-441d812d23ae",
+        "_score": 1.0,
+        "_source": {
+            "id": "d10e2d77-6054-472a-b296-441d812d23ae",
+            "name": "Western",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "48824efe-23bd-4cea-bc65-57a6073928ea",
+        "_score": 1.0,
+        "_source": {
+            "id": "48824efe-23bd-4cea-bc65-57a6073928ea",
+            "name": "Horror",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "c4295e59-f669-409f-ae72-28cf811ab859",
+        "_score": 1.0,
+        "_source": {
+            "id": "c4295e59-f669-409f-ae72-28cf811ab859",
+            "name": "Biography",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "b8e75e7b-8142-49bb-abc6-e8ff5a787b3a",
+        "_score": 1.0,
+        "_source": {
+            "id": "b8e75e7b-8142-49bb-abc6-e8ff5a787b3a",
+            "name": "Romance",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "5075b219-3abd-433b-a505-d74ea1db7273",
+        "_score": 1.0,
+        "_source": {
+            "id": "5075b219-3abd-433b-a505-d74ea1db7273",
+            "name": "Fantasy",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "cbdd4a0d-b6c9-4eaa-a846-cc175dc24221",
+        "_score": 1.0,
+        "_source": {
+            "id": "cbdd4a0d-b6c9-4eaa-a846-cc175dc24221",
+            "name": "History",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "a0cf8fa0-1196-4dca-aa44-ea7c5e831a4f",
+        "_score": 1.0,
+        "_source": {
+            "id": "a0cf8fa0-1196-4dca-aa44-ea7c5e831a4f",
+            "name": "News",
+            "description": ""
+        }
+    },
+    {
+        "_index": "genres",
+        "_id": "4d88e3d2-4901-46fe-89b7-4782c2e30b4c",
+        "_score": 1.0,
+        "_source": {
+            "id": "4d88e3d2-4901-46fe-89b7-4782c2e30b4c",
+            "name": "Mystery",
             "description": ""
         }
     }
