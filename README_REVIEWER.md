@@ -4,8 +4,9 @@
 ```commandline
 docker compose -f docker-compose.tests.yaml --env-file tests.env up --build
 ```
-Запуск локальных тестов:
+Для запуск локальных тестов, находясь в корневой папке проекта:
 ```commandline
+pip install -r requirements.txt
 docker compose -f docker-compose.tests_local.yaml --env-file tests.env up --build -d
 pytest
 ```
