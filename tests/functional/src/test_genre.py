@@ -4,14 +4,18 @@ API_URL = "/genre/"
 
 
 @pytest.mark.asyncio
-async def test_genres(make_get_request, initialize_environment, expected_json_response):
+async def test_genres(make_get_request,
+                      initialize_environment,
+                      expected_json_response):
     response = await make_get_request(f"{API_URL}")
     assert response.status == 200
     assert response.body == expected_json_response
 
 
 @pytest.mark.asyncio
-async def test_genre_by_id(make_get_request, initialize_environment, expected_json_response):
+async def test_genre_by_id(make_get_request,
+                           initialize_environment,
+                           expected_json_response):
     some_id = "04f28f12-ff34-4f91-93d1-777b27d1b0e1"
     response = await make_get_request(f"{API_URL}{some_id}")
     assert response.status == 200
@@ -19,7 +23,9 @@ async def test_genre_by_id(make_get_request, initialize_environment, expected_js
 
 
 @pytest.mark.asyncio
-async def test_genres_search(make_get_request, initialize_environment, expected_json_response):
+async def test_genres_search(make_get_request,
+                             initialize_environment,
+                             expected_json_response):
     response = await make_get_request(f"{API_URL}search/",
                                       params={
                                           "query": "Comedy",
@@ -86,7 +92,10 @@ async def test_search_person_pagination_invalid_input(make_get_request,
 
 
 @pytest.mark.asyncio
-async def test_genres_cache(make_get_request, initialize_environment, es_client, expected_json_response):
+async def test_genres_cache(make_get_request,
+                            initialize_environment,
+                            es_client,
+                            expected_json_response):
     # Запрашиваем данные. Они должны поместиться в кэш.
     response = await make_get_request(f"{API_URL}")
     assert response.status == 200
@@ -95,7 +104,7 @@ async def test_genres_cache(make_get_request, initialize_environment, es_client,
     # Удаляем индекс.
     await es_client.indices.delete(index="genre", ignore=[400, 404])
 
-    # Запрашиваем данные ещё раз — они должны вернуться из кэша.
+    # Запрашиваем данные ещё раз ??? они должны вернуться из кэша.
     response = await make_get_request(f"{API_URL}")
     assert response.status == 200
     assert response.body == expected_json_response

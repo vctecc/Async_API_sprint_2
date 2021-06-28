@@ -12,7 +12,8 @@ class TestSettings(BaseSettings):
     load_index_timeout: int = Field(30)
 
     es_snapshot_repo: str = Field("es-snapshots")
-    es_snapshot_loc: str = Field("/usr/share/elasticsearch/backup", env="path.repo")
+    es_snapshot_loc: str = Field("/usr/share/elasticsearch/backup",
+                                 env="path.repo")
 
     redis_host: str = Field("127.0.0.1", env="REDIS_HOST")
     redis_port: str = Field("6379", env="REDIS_PORT")
@@ -23,4 +24,5 @@ class TestSettings(BaseSettings):
 
     load_data_dir: Path = Field("tests/functional/testdata/load_data")
     es_schemes_dir: Path = Field("tests/functional/testdata/schemes")
-    expected_response_dir: Path = Field("tests/functional/testdata/expected_response")
+    expected_response_dir: Path = Field(
+        "tests/functional/testdata/expected_response")

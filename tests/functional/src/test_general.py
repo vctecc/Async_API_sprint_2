@@ -12,7 +12,10 @@ import pytest
             ("/genre/wrong-id", {"detail": "genre not found"})
     )
 )
-async def test_404_routes(make_get_request, initialize_environment, route, body):
+async def test_404_routes(make_get_request,
+                          initialize_environment,
+                          route,
+                          body):
     response = await make_get_request(route)
     assert response.status == 404
     assert response.body == body

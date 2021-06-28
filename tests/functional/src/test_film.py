@@ -4,7 +4,8 @@ API_URL = '/film/'
 
 
 @pytest.mark.asyncio
-async def test_film_get_by_id(make_get_request, initialize_environment,
+async def test_film_get_by_id(make_get_request,
+                              initialize_environment,
                               expected_json_response):
     some_id = "0fdad8d4-6672-46a4-b5c6-529faa368ac7"
     response = await make_get_request(f"{API_URL}{some_id}", {})
@@ -25,7 +26,8 @@ async def test_film_get_all(make_get_request, initialize_environment):
     (
         (1, 1), (1, 2), (50, 1))
     )
-async def test_film_paging(make_get_request, initialize_environment,
+async def test_film_paging(make_get_request,
+                           initialize_environment,
                            page_size, page_number):
     response = await make_get_request(
         API_URL,
@@ -42,7 +44,8 @@ async def test_film_paging(make_get_request, initialize_environment,
         (0, 1), (1, 0), (-1, 1), (1, -1),
     )
 )
-async def test_film_paging_invalid_page(make_get_request, initialize_environment,
+async def test_film_paging_invalid_page(make_get_request,
+                                        initialize_environment,
                                         page_number, page_size):
     response = await make_get_request(
         f"{API_URL}search/",
@@ -84,7 +87,8 @@ async def test_film_filter_genre(make_get_request, initialize_environment):
 
 
 @pytest.mark.asyncio
-async def test_film_filter_unknown_genre(make_get_request, initialize_environment):
+async def test_film_filter_unknown_genre(make_get_request,
+                                         initialize_environment):
     response = await make_get_request(
         API_URL,
         {"filter[genre]": "deadbeaf"}
@@ -94,7 +98,9 @@ async def test_film_filter_unknown_genre(make_get_request, initialize_environmen
 
 
 @pytest.mark.asyncio
-async def test_film_cache(make_get_request, initialize_environment, es_client):
+async def test_film_cache(make_get_request,
+                          initialize_environment,
+                          es_client):
     request = (f"{API_URL}", {"page[number]": 1, "page[size]": 1})
     cache_response = await make_get_request(*request)
     assert cache_response.status == 200
