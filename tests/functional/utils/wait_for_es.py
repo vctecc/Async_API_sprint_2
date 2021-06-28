@@ -7,7 +7,6 @@ from functional.settings import TestSettings
 settings = TestSettings()
 
 
-# TODO: add logs
 @backoff.on_exception(backoff.expo,
                       elasticsearch.ConnectionError,
                       max_time=settings.es_wait_time)
