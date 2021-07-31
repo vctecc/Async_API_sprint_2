@@ -3,14 +3,17 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from core.config import FILM_PAGE_SIZE, FILM_PAGE_NUMBER
+from core.config import FILM_PAGE_NUMBER, FILM_PAGE_SIZE
 from models.film import Film, FilmPreview
+from services.auth import role_validator_factory
 from services.film import FilmService, get_film_service
 
 router = APIRouter()
 
 
-@router.get("/{film_id}", response_model=Film)
+@router.get("/{film_id}",
+            response_model=Film,
+            dependencies=[Depends(role_validator_factory(roles=("user", )))])
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
     film = await film_service.get_by_id(film_id)
     if not film:
