@@ -17,6 +17,7 @@ AUTH_HOST = os.getenv("AUTH_HOST", "auth-api")
 AUTH_PORT = os.getenv("AUTH_PORT", "5000")
 AUTH_ENDPOINT = os.getenv("AUTH_ENDPOINT", "api/v1/auth/check")
 AUTH_URL = f"http://{AUTH_HOST}:{AUTH_PORT}/{AUTH_ENDPOINT}"
+AUTH_BACKOFF_TIME = int(os.getenv("AUTH_BACKOFF_TIME", 10))
 
 # Настройки Redis
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
