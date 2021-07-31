@@ -36,7 +36,7 @@ async def session():
 
 @pytest.fixture(scope="session")
 async def es_client():
-    host = settings.es_host + ":" + settings.es_port
+    host = f"{settings.es_host}:{settings.es_port}"
     client = AsyncElasticsearch(hosts=host)
     yield client
     await client.close()
@@ -61,7 +61,8 @@ async def es_from_snapshot(es_client):
     body = {
         "type": "fs",
         "settings": {
-            "location": os.path.join(settings.es_snapshot_loc, settings.es_snapshot_repo)
+            "location": os.path.join(settings.es_snapshot_loc,
+                                     settings.es_snapshot_repo)
         }
     }
     await snapshots.create_repository(repository=settings.es_snapshot_repo,
@@ -82,7 +83,7 @@ async def es_from_snapshot(es_client):
 @pytest.fixture
 def make_get_request(session):
     async def inner(method: str, params: dict = None) -> HTTPResponse:
-        url = "http://" + SERVICE_URL + API_URL + method
+        url = f"http://{SERVICE_URL}{API_URL}{method}"
         async with session.get(url, params=params) as response:
             return HTTPResponse(
                 body=await response.json(),
@@ -110,7 +111,6 @@ async def load_data_in_index(es_client, index_name):
     await async_bulk(es_client, data, index=index_name)
 
     items = {}
-
     start_time = datetime.now()
 
     while not items.get("count"):
@@ -118,7 +118,9 @@ async def load_data_in_index(es_client, index_name):
         seconds = (datetime.now() - start_time).seconds
 
         if seconds >= settings.load_index_timeout:
-            raise TimeoutError(f"Time-out for loading data into ES index {index_name}.")
+            raise TimeoutError(
+                f"Time-out for loading data into ES index {index_name}."
+            )
 
 
 async def initialize_es_index(es_client, index_name):
@@ -143,7 +145,9 @@ async def initialize_environment(es_client, redis_client):
 
 @pytest.fixture(scope="function")
 async def expected_json_response(request):
-    """Load expected response from json file with same filename as function name"""
+    """
+    Loads expected response from json file with same filename as function name
+    """
     file = settings.expected_response_dir.joinpath(f"{request.node.name}.json")
     async with aiofiles.open(file) as f:
         content = await f.read()

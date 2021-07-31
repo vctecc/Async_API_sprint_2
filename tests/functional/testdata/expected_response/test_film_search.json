@@ -1,6 +1,61 @@
-{
-  "id": "025aa6dd-a2ff-4513-b83c-29a940a8312f",
-  "title": "Star of Midnight",
-  "imdb_rating": 6.7,
-  "description": "Friend Tim Winthrop asks criminal lawyer and amateur detective Clay Dalzell to find his girl, Alice, who disappeared a year earlier without a trace. When they go to the theater with Clay's would-be fiancée, Donna Mantin, Tim recognizes the star, Mary Smith, as his girl, and yells \"Alice,\" after which she bolts from the stage and disappears once again. Reporter Tommy Tennant knows why she bolted, but before he can tell Clay the reason, he is shot dead and Clay is wounded slightly in Clay's apartment. The many suspects include Roger Classon and his wife, Jerry, who are looking for Alice to testify and save Roger's friend from the electric chair for a murder he didn't commit; Abe Ohlman, the producer of Mary's show; and gangster Jimmy Kinland who seems to know more than he's telling. It's up to Clay, with the help of Donna, to trap the murderer and find Alice."
-}
+[
+  {
+   "id": "d6b76d54-56cc-4a98-b7a7-9f2042679698",
+   "title": "Stalked by a Reality Star",
+   "imdb_rating": 5.1,
+    "description": "A teenage girl lies about her age to get into a Hollywood party and meets a handsome reality TV star - but when she finds out he is a creep and rejects him, he becomes obsessed and starts ..."},
+  {
+   "id": "dd0b5646-340d-4ea7-be02-549187b99754",
+   "title": "Rock Star: INXS",
+   "imdb_rating": 6.9,
+   "description": "Reality competition show looking for a new lead singer for the rock group INXS"
+  },
+  {
+   "id": "0fdad8d4-6672-46a4-b5c6-529faa368ac7",
+   "title": "Jade: The Reality Star Who Changed Britain",
+   "imdb_rating": 7.5,
+   "description": "Series exploring the life of Jade Goody: the UK's most loved - and hated - reality TV star."
+  },
+  {
+   "id": "c5815383-bbfb-4c42-8ab7-bb63da5bb5c4",
+   "title": "I Know My Kid's a Star",
+   "imdb_rating": 4.0,
+   "description": "A reality series in which a group of kids (and their parents) compete in order to be deemed the next child star."
+  },
+  {
+    "id": "81af7c83-487d-45e0-970c-dd45f3bf6ce0",
+    "title": "Mission Star",
+    "imdb_rating": 7.7,
+    "description": "A delivery boy from a grocery store gets the dream opportunity of participating in his favorite reality show."
+  },
+  {
+    "id": "9da79ae3-517e-4fdd-9705-a295a8b031e4",
+    "title": "The Young Person's Guide to Becoming a Rock Star",
+    "imdb_rating": 8.1,
+    "description": "An up-and-coming Glasgow based rock band are faced the harsh realities of the music industry on their journey to becoming the next big thing."
+  },
+  {
+    "id": "642bf236-414e-4e05-896d-c8bfa859c5fe",
+    "title": "Ich bin ein Star - Holt mich hier raus!",
+    "imdb_rating": 4.8,
+    "description": "I'm a Celebrity - Get Me Out of Here. (often referred to as a jungle camp) is a reality show that has been aired by the RTL since 2004."
+  },
+  {
+    "id": "19ba79f6-83f0-4b7c-b003-6438b8f3caff",
+    "title": "Rising Star",
+    "imdb_rating": 6.5,
+    "description": "Rising Star is an Indian version of the international franchise series Rising Star. It is a reality television singing competition. The program format lets viewers vote for contestants live..."
+  },
+  {
+    "id": "235824e4-b522-424c-b787-3ebd6d6d03e8",
+    "title": "Date My Porn Star",
+    "imdb_rating": 5.9,
+    "description": "Three British porn addicts, Kevin, 20, Danny, 26, and Jonathan, 40, go to America to meet their favourite stars, and witness the harsh realities behind the factories of fantasy."
+  },
+  {
+   "id": "b38f692c-eb60-4061-89c2-001b13756b68",
+   "title": "HGTV Design Star",
+   "imdb_rating": 6.3,
+   "description": "Ten aspiring designers seek to impress home viewers and an expert judging panel with their design expertise, ingenuity, creativity and \"it\" factor during the reality competition, HGTV Design Star."
+  }
+]

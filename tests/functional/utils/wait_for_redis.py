@@ -6,7 +6,6 @@ from functional.settings import TestSettings
 settings = TestSettings()
 
 
-# TODO: add logs
 @backoff.on_exception(backoff.expo,
                       redis.exceptions.ConnectionError,
                       max_time=settings.redis_wait_time)

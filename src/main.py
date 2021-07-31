@@ -11,12 +11,14 @@ from core import config
 from core.config import DEV
 from core.logger import LOGGING
 from db import es_storage, redis_cache
+from tags import tags_metadata
 
 app = FastAPI(
     title=config.PROJECT_NAME,
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
+    openapi_tags=tags_metadata
 )
 
 
