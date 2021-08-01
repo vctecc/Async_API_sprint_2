@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models.film import FilmPreview
 from models.person import Person
+from services.auth import role_validator_factory
 from services.person import PersonService, get_person_service
 
 PERSONS_PAGE_SIZE = 5
@@ -15,6 +16,7 @@ router = APIRouter()
 @router.get("/{person_id}",
             response_model=Person,
             description="Подробная информация о участнике кинопроизведения с указанным ID.",
+            dependencies=[Depends(role_validator_factory(roles=("user", "subscriber", "admin")))],
             )
 async def person_details(person_id: str = Query(None, description="Идентификатор"),
                          person_service: PersonService = Depends(get_person_service)
@@ -28,6 +30,7 @@ async def person_details(person_id: str = Query(None, description="Иденти�
 @router.get("/search/",
             response_model=List[Person],
             description="Поиск среди участников кинопроизведения.",
+            dependencies=[Depends(role_validator_factory(roles=("guest", "user", "subscriber", "admin")))],
             )
 async def person_search(query: str = Query("", description="Полнотекстовый поиск участникам."),
                         page: Optional[int] = Query(1, alias="page[number]", ge=1,
@@ -43,6 +46,7 @@ async def person_search(query: str = Query("", description="Полнотекст
 @router.get("/{person_id}/film",
             response_model=List[FilmPreview],
             description="Краткая информация о фильмах, в которых приняла участие персона.",
+            dependencies=[Depends(role_validator_factory(roles=("guest", "user", "subscriber", "admin")))],
             )
 async def person_films(person_id: str,
                        person_service: PersonService = Depends(get_person_service)
