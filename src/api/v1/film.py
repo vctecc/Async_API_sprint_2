@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get("/{film_id}",
             response_model=Film,
             description="Подробная информация о фильме с указанным ID",
-            dependencies=[Depends(role_validator_factory(roles=("user", )))]
+            dependencies=[Depends(role_validator_factory(roles=("user", "subscriber", "admin")))]
             )
 async def film_details(film_id: str = Query(None, description="Идентификатор"),
                        film_service: FilmService = Depends(get_film_service)
@@ -28,6 +28,7 @@ async def film_details(film_id: str = Query(None, description="Идентифи�
 @router.get("/",
             response_model=List[FilmPreview],
             description="Краткая информация о фильмах с фильтрацией по жанрам",
+            dependencies=[Depends(role_validator_factory(roles=("guest", "user", "subscriber", "admin")))],
             )
 async def films_index(
         sort: Optional[str] = Query(None,
@@ -46,6 +47,7 @@ async def films_index(
 @router.get("/search/",
             response_model=List[FilmPreview],
             description="Полнотекстовый поиск по фильмам",
+            dependencies=[Depends(role_validator_factory(roles=("guest", "user", "subscriber", "admin")))],
             )
 async def films_index(
         query: Optional[str] = Query(None,
