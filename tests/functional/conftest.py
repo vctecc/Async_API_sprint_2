@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from dataclasses import dataclass
@@ -33,7 +34,7 @@ async def session():
     await session.close()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 async def es_client():
     host = f"{settings.es_host}:{settings.es_port}"
     client = AsyncElasticsearch(hosts=host)
@@ -41,7 +42,7 @@ async def es_client():
     await client.close()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 async def redis_client():
     redis = await aioredis.create_redis_pool(
         (settings.redis_host, settings.redis_port),
@@ -127,7 +128,12 @@ async def initialize_es_index(es_client, index_name):
     await load_data_in_index(es_client, index_name)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
+def event_loop():
+    return asyncio.get_event_loop()
+
+
+@pytest.fixture(scope="session")
 async def initialize_environment(es_client, redis_client):
     for index in settings.es_indexes:
         await initialize_es_index(es_client, index)
